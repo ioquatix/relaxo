@@ -14,8 +14,8 @@ Dir.chdir("../") do
 
 		s.executables << 'relaxo'
 
-		s.add_dependency("couchrest")
-		s.add_dependency("rest-client")
+		s.add_dependency("json", "~> 1.7.3")
+		s.add_dependency("rest-client", "~> 1.6.7")
 
 		s.has_rdoc = "yard"
 	end
