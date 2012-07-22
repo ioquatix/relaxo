@@ -24,12 +24,18 @@ require 'cgi'
 
 module Relaxo
 	module Client
+		@@debug = false
+		
+		def self.debug= flag
+			@@debug = flag
+		end
+		
 		DEFAULT_GET_HEADERS = {:accept => :json}
 		DEFAULT_PUT_HEADERS = {:accept => :json, :content_type => :json}
 		
 		def self.execute(request)
 			# Poor mans debugging:
-			# $stderr.puts "#{request[:method]} #{request[:url]}..."
+			$stderr.puts "Relaxo Client: #{request[:method]} #{request[:url]}" if @@debug
 			
 			response = RestClient::Request.execute(request)
 			return JSON.parse(response)
