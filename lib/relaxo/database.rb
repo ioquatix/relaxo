@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require 'relaxo/client'
-require 'relaxo/server'
+require 'relaxo/connection'
 
 module Relaxo
 	
@@ -60,7 +60,7 @@ module Relaxo
 			
 			# We assume the save operation will be successful:
 			unless document.key? ID
-				@uuids << (document[ID] = @database.server.next_uuid)
+				@uuids << (document[ID] = @database.connection.next_uuid)
 			end
 		end
 		
@@ -106,14 +106,14 @@ module Relaxo
 	end
 	
 	class Database
-		def initialize(server, name)
-			@server = server
+		def initialize(connection, name)
+			@connection = connection
 			@name = name
 			
-			@root = server.url + "/" + CGI.escape(name)
+			@root = connection.url + "/" + CGI.escape(name)
 		end
 		
-		attr :server
+		attr :connection
 		attr :name
 		attr :root
 		
@@ -122,7 +122,7 @@ module Relaxo
 		end
 		
 		def put(document)
-			Client.put document_url(document[ID] || @server.next_uuid), document
+			Client.put document_url(document[ID] || @connection.next_uuid), document
 		end
 		
 		def delete(document)

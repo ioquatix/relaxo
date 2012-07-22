@@ -35,8 +35,7 @@ Connect to a local database and manipulate some documents.
 	doc2[:foo] = 'bar'
 	$database.save(doc2)
 
-Bulk Changes/Sessions
----------------------
+### Bulk Changes/Sessions ###
 
 Sessions support a very similar interface to the main database class and can for many cases be used interchangeably, but with added efficiency.
 
@@ -64,8 +63,7 @@ using CouchDB `_bulk_save`.
 
 To abort the session, either raise an exception or call `session.abort!` which is equivalent to `throw :abort`.
 
-Loading Data
-------------
+### Loading Data ###
 
 Relaxo includes a command line script to import documents into a CouchDB database:
 

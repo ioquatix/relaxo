@@ -21,7 +21,7 @@
 require 'relaxo/client'
 
 module Relaxo
-	class Server
+	class Connection
 		DEFAULT_UUID_FETCH_COUNT = 10
 		
 		def initialize(url)

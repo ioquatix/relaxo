@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require 'relaxo/client'
-require 'relaxo/server'
+require 'relaxo/connection'
 
 module Relaxo
 	
@@ -65,7 +65,7 @@ module Relaxo
 			
 			# We assume the save operation will be successful:
 			unless document.key? ID
-				@uuids << (document[ID] = @database.server.next_uuid)
+				@uuids << (document[ID] = @database.connection.next_uuid)
 			end
 		end
 		

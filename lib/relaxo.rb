@@ -31,7 +31,7 @@ module Relaxo
 			name = url
 		end
 		
-		server = Server.new(host)
-		database = Database.new(server, name)
+		connection = Connection.new(host)
+		database = Database.new(connection, name)
 	end
 end

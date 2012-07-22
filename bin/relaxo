@@ -15,7 +15,10 @@ elsif ARGV.delete('--update')
 	OPTIONS[:existing] = :update
 end
 
-$database = Relaxo.connect(ARGV.shift)
+$url = ARGV.shift
+$database = Relaxo.connect($url)
+$stderr.puts "Connecting to #{$url}..."
+
 $documents = YAML::load(ARGF)
 
 unless Array === $documents
@@ -30,7 +33,7 @@ $stats = {
 
 $documents.each do |document|
 	begin
-		$stderr.puts "Loading #{document.inspect}"
+		$stderr.puts "Loading #{document[Relaxo::ID]}"
 		existing_document = nil
 		
 		if document && document[Relaxo::ID]
