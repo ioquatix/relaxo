@@ -1,29 +1,76 @@
 #!/usr/bin/env ruby
 
 require 'relaxo'
+require 'relaxo/version'
+require 'optparse'
 require 'yaml'
+require 'csv'
 
 OPTIONS = {
-	:existing => :merge
+	:existing => :update, # :merge, :replace
+	:format => :yaml,
+	:transaction => true,
 }
 
-if ARGV.delete('--merge')
-	OPTIONS[:existing] = :merge
-elsif ARGV.delete('--replace')
-	OPTIONS[:existing] = :replace
-elsif ARGV.delete('--update')
-	OPTIONS[:existing] = :update
+module Formats
+	def self.yaml(io, &block)
+		documents = YAML::load(io)
+
+		unless Array === documents
+			documents = [documents]
+		end
+		
+		documents.each &block
+	end
+	
+	def self.csv(io, &block)
+		csv = CSV.new(io, :headers => :first_row)
+		
+		csv.each do |row|
+			yield row.to_hash
+		end
+	end
 end
+
+ARGV.options do |o|
+	script_name = File.basename($0)
+	
+	o.banner = "Usage: #{script_name} [options] [server-url] [files]"
+	o.define_head "This script can be used to import data to CouchDB."
+
+	o.separator ""
+	o.separator "Document creation:"
+
+	o.on("--existing [mode]", "Control whether to 'update (new document attributes takes priority), 'merge' (existing document attributes takes priority) or replace (old document attributes discarded) existing documents.") do |mode|
+		OPTIONS[:existing] = mode.to_sym
+	end
+
+	o.on("--format [type]", "Control the input format. 'yaml' files are imported as a single document or array of documents. 'csv' files are imported as records using the first row as attribute keys.") do |format|
+		OPTIONS[:format] = format.to_sym
+	end
+
+	o.on("--[no-]transaction", "Controls whether data is saved using the batch save operation. Not suitable for huge amounts of data.")
+
+	o.separator ""
+	o.separator "Help and Copyright information:"
+
+	o.on_tail("--copy", "Display copyright and warranty information") do
+		$stderr.puts "#{script_name} v#{Relaxo::VERSION::STRING}. Copyright (c) 2012 Samuel Williams."
+		$stderr.puts "This software is released under the MIT license and comes with ABSOLUTELY NO WARRANTY."
+		exit
+	end
+
+	o.on_tail("-h", "--help", "Show this help message.") do
+		$stderr.puts o
+		exit
+	end
+end.parse!
 
 $url = ARGV.shift
-$database = Relaxo.connect($url)
 $stderr.puts "Connecting to #{$url}..."
+$database = Relaxo.connect($url)
 
-$documents = YAML::load(ARGF)
-
-unless Array === $documents
-	$documents = [$documents]
-end
+$format = Formats.method(OPTIONS[:format])
 
 $stats = {
 	:saved => 0,
@@ -31,13 +78,13 @@ $stats = {
 	:total => 0
 }
 
-$documents.each do |document|
+def process_document(database)
 	begin
-		$stderr.puts "Loading #{document[Relaxo::ID]}"
 		existing_document = nil
 		
 		if document && document[Relaxo::ID]
-			existing_document = $database.get(document[Relaxo::ID]) rescue nil
+			$stderr.puts "Loading #{document[Relaxo::ID]}"
+			existing_document = database.get(document[Relaxo::ID]) rescue nil
 		end
 		
 		if existing_document
@@ -59,7 +106,7 @@ $documents.each do |document|
 		end
 		
 		$stderr.puts "Saving #{document.inspect}"
-		$result = $database.save(document)
+		$result = database.save(document)
 		
 		$stats[:saved] += 1
 	rescue RestClient::BadRequest => ex
@@ -71,7 +118,13 @@ $documents.each do |document|
 	$stats[:total] += 1
 end
 
-$stderr.puts "#{$stats[:saved]} document(s) saved out of #{$stats[:total]}."
-if $stats[:errors] > 0
-	$stderr.puts "#{$stats[:errors]} errors occurred!"
+begin
+	$format.call(ARGF) do |document|
+		process_document(document)
+	end
+ensure
+	$stderr.puts "#{$stats[:saved]} document(s) saved out of #{$stats[:total]}."
+	if $stats[:errors] > 0
+		$stderr.puts "#{$stats[:errors]} errors occurred!"
+	end
 end
