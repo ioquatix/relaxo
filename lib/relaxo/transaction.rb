@@ -55,12 +55,14 @@ module Relaxo
 		end
 		
 		def delete(document)
-			@documents << {:_deleted => true}.merge(document)
+			@documents << {
+				ID => document[ID],
+				REV => document[REV],
+				DELETED => true
+			}
 		end
 		
 		def save(document)
-			Relaxo::encode_attachments!(document)
-			
 			@documents << document
 			
 			# We assume the save operation will be successful:
@@ -80,9 +82,6 @@ module Relaxo
 		end
 		
 		def commit!
-			#puts "Commiting transaction:"
-			#puts YAML::dump(@documents)
-			
 			changed = []
 			
 			unless @documents.empty?
@@ -108,9 +107,5 @@ module Relaxo
 		def abort!
 			throw :abort
 		end
-		
-		#def rollback!
-			# Restore all documents based on @uuids
-		#end
 	end
 end

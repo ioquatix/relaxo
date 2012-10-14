@@ -30,6 +30,7 @@ end
 module Relaxo
 	ID = '_id'
 	REV = '_rev'
+	DELETED = '_deleted'
 	
 	class Database
 		def initialize(connection, name)
