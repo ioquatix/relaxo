@@ -26,14 +26,14 @@ Connect to a local database and manipulate some documents.
 
 	require 'relaxo'
 	
-	$database = Relaxo.connect("http://localhost:5984/test")
+	database = Relaxo.connect("http://localhost:5984/test")
 	
 	doc1 = {:bob => 'dole'}
-	$database.save(doc1)
+	database.save(doc1)
 	
-	doc2 = $database.get(doc1['_id'])
+	doc2 = database.get(doc1['_id'])
 	doc2[:foo] = 'bar'
-	$database.save(doc2)
+	database.save(doc2)
 
 ### Bulk Changes/Sessions ###
 
@@ -42,13 +42,12 @@ Sessions support a very similar interface to the main database class and can for
 	require 'relaxo'
 	require 'relaxo/session'
 	
-	$database = Relaxo.connect("http://localhost:5984/test")
+	database = Relaxo.connect("http://localhost:5984/test")
+	animals = ['Neko-san', 'Wan-chan', 'Nezu-chan', 'Chicken-san']
 	
-	$animals = ['Neko-san', 'Wan-chan', 'Nezu-chan', 'Chicken-san']
-	
-	$database.session do |session|
-		$animals.each do |animal|
-			session.save({:name => animal})
+	database.transaction do |transaction|
+		animals.each do |animal|
+			transaction.save({:name => animal})
 		end
 	end
 	# => [
