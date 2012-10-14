@@ -23,15 +23,15 @@ require 'relaxo/connection'
 
 module Relaxo
 	
-	# We monkey-patch this in as Session is basically an optional feature for doing bulk_saves.
+	# We monkey-patch this in as Transaction is basically an optional feature for doing bulk_saves.
 	class Database
-		def session(klass = nil)
-			session = Session.new(self)
+		def transaction(klass = nil)
+			transaction = Transaction.new(self)
 			
 			catch(:abort) do
-				yield session
+				yield transaction
 				
-				changed = session.commit!
+				changed = transaction.commit!
 				
 				if klass
 					klass.new(self, changed.last)
@@ -42,7 +42,7 @@ module Relaxo
 		end
 	end
 	
-	class Session
+	class Transaction
 		def initialize(database)
 			@database = database
 			
@@ -69,7 +69,7 @@ module Relaxo
 			end
 		end
 		
-		def session(klass)
+		def transaction(klass)
 			yield self
 			
 			klass.new(self, @documents.last)
@@ -80,7 +80,7 @@ module Relaxo
 		end
 		
 		def commit!
-			#puts "Commiting session:"
+			#puts "Commiting transaction:"
 			#puts YAML::dump(@documents)
 			
 			changed = []
