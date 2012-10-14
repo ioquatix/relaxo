@@ -21,12 +21,6 @@
 require 'relaxo/client'
 require 'relaxo/connection'
 
-if RUBY_VERSION < "1.9"
-	require 'relaxo/base64-1.8'
-else
-	require 'base64'
-end
-
 module Relaxo
 	ID = '_id'
 	REV = '_rev'
