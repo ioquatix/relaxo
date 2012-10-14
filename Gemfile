@@ -5,3 +5,6 @@ gem "json"
 gem "rest-client"
 gem "rake"
 
+platforms :jruby do
+  gem 'jruby-openssl'
+end
