@@ -44,5 +44,10 @@ module Relaxo
 		def info
 			Client.get @url
 		end
+		
+		# Returns a list of names, one for each available database.
+		def databases
+			Client.get("#{@url}/_all_dbs")
+		end
 	end
 end
