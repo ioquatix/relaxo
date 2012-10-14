@@ -27,6 +27,10 @@ class DatabaseTest < Test::Unit::TestCase
 			}
 		}
 		
-		puts @database.save(document).inspect
+		result = @database.save(document)
+		assert result['ok']
+		
+		document = @database.get(document[Relaxo::ID])
+		assert_equal 1, document[Relaxo::ATTACHMENTS].size
 	end
 end
