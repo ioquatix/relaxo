@@ -21,89 +21,15 @@
 require 'relaxo/client'
 require 'relaxo/connection'
 
+if RUBY_VERSION < "1.9"
+	require 'relaxo/base64-1.8'
+else
+	require 'base64'
+end
+
 module Relaxo
-	
 	ID = '_id'
 	REV = '_rev'
-	ATTACHMENTS = '_attachments'
-	
-	def self.encode_attachments!(document)
-		return unless document[ATTACHMENTS]
-		
-		document[ATTACHMENTS].each do |name,contents|
-			next if contents['stub']
-			
-			contents['data'] = Base64.encode64(contents['data'])
-		end
-	end
-	
-	class Session
-		def initialize(database)
-			@database = database
-			
-			@documents = []
-			@uuids = []
-		end
-		
-		def get(*args)
-			@database.get(*args)
-		end
-		
-		def delete(document)
-			@documents << {:_deleted => true}.merge(document)
-		end
-		
-		def save(document)
-			Relaxo::encode_attachments!(document)
-			
-			@documents << document
-			
-			# We assume the save operation will be successful:
-			unless document.key? ID
-				@uuids << (document[ID] = @database.connection.next_uuid)
-			end
-		end
-		
-		def session(klass)
-			yield self
-			
-			klass.new(self, @documents.last)
-		end
-		
-		def view(*args)
-			@database.view(*args)
-		end
-		
-		def commit!
-			#puts "Commiting session:"
-			#puts YAML::dump(@documents)
-			
-			changed = []
-			
-			unless @documents.empty?
-				results = @database.bulk_save @documents
-				
-				# Update the documents with revision information:
-				@documents.each_with_index do |document, index|
-					status = results[index]
-					
-					if status['ok']
-						document[ID] = status['id']
-						document[REV] = status['rev']
-					end
-				end
-				
-				changed = @documents
-				@documents = []
-			end
-			
-			return changed
-		end
-		
-		#def rollback!
-			# Restore all documents based on @uuids
-		#end
-	end
 	
 	class Database
 		def initialize(connection, name)
@@ -116,6 +42,30 @@ module Relaxo
 		attr :connection
 		attr :name
 		attr :root
+		
+		# Create the database, will potentially throw an exception if it already exists.
+		def create!
+			Client.put @root
+		end
+		
+		# Return true if the database already exists.
+		def exist?
+			Client.head @root
+		end
+		
+		# Delete the database and all data.
+		def delete!
+			Client.delete @root
+		end
+		
+		# Compact the database, removing old document revisions and optimizing space use.
+		def compact!
+			Client.post "#{@root}/_compact"
+		end
+		
+		def id?(id, parameters = {})
+			Client.head document_url(id, parameters)
+		end
 		
 		def get(id, parameters = {})
 			Client.get document_url(id, parameters)
@@ -130,8 +80,6 @@ module Relaxo
 		end
 		
 		def save(document)
-			Relaxo::encode_attachments!(document)
-			
 			status = put(document)
 			
 			if status['ok']
@@ -142,11 +90,13 @@ module Relaxo
 			return status
 		end
 		
-		def bulk_save(documents)
-			Client.post command_url("_bulk_docs"), {
+		def bulk_save(documents, options = {})
+			options = {
 				:docs => documents,
 				:all_or_nothing => true
-			}
+			}.merge(options)
+			
+			Client.post command_url("_bulk_docs"), options
 		end
 		
 		# Accepts paramaters as described in http://wiki.apache.org/couchdb/HttpViewApi
