@@ -1,11 +1,10 @@
 Relaxo
 ======
 
-[![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
-
 * Author: Samuel G. D. Williams (<http://www.oriontransfer.co.nz>)
 * Copyright (C) 2012 Samuel G. D. Williams.
 * Released under the MIT license.
+* [![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
 
 Relaxo provides a set of tools and interfaces for interacting with CouchDB. It aims to be as simple and efficient as possible while still improving the usability of various CouchDB features.
 
