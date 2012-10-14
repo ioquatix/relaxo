@@ -18,27 +18,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'json'
+require 'relaxo/json'
 require 'rest_client'
 require 'cgi'
 
 module Relaxo
+	# Typically returned from CouchDB when the request was successful:
+	SUCCESS = {'ok' => true}
+	
 	module Client
-		@@debug = false
-		
-		def self.debug= flag
-			@@debug = flag
-		end
-		
 		DEFAULT_GET_HEADERS = {:accept => :json}
 		DEFAULT_PUT_HEADERS = {:accept => :json, :content_type => :json}
 		
 		def self.execute(request)
-			# Poor mans debugging:
-			$stderr.puts "Relaxo Client: #{request[:method]} #{request[:url]}" if @@debug
-			
-			response = RestClient::Request.execute(request)
-			return JSON.parse(response)
+			if request[:method] == :head
+				begin
+					response = RestClient::Request.execute(request)
+					return response.code == 200
+				rescue RestClient::ResourceNotFound
+					return false
+				end
+			else
+				response = RestClient::Request.execute(request)
+				return JSON.parse(response)
+			end
 		end
 		
 		def self.get(url)
@@ -57,12 +60,25 @@ module Relaxo
 			})
 		end
 		
-		def self.put(url, document)
+		def self.attach(url, data, headers = {})
+			headers = {
+				:accept => :json
+			}.merge(headers)
+			
+			execute({
+				:method => :put,
+				:url => url,
+				:headers => headers,
+				:payload => data
+			})
+		end
+		
+		def self.put(url, document = nil)
 			execute({
 				:method => :put,
 				:url => url,
 				:headers => DEFAULT_PUT_HEADERS,
-				:payload => JSON.generate(document)
+				:payload => document ? JSON.generate(document) : nil
 			})
 		end
 		
