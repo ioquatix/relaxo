@@ -18,21 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# You can define Relaxo::JSON before loading Relaxo, and it will use this implementation without trying to load the default JSON implementation.
+# You can define `Relaxo::JSON` before loading Relaxo, and it will use this implementation without trying to load the default JSON implementation.
 
 module Relaxo
 end
 
-# Try to load a JSON implementation if it doesn't already exist:
 unless defined? Relaxo::JSON
-	begin
-		require 'json/ext'
-	
-		Relaxo::JSON = JSON
-	rescue LoadError
-		puts "Falling back to non-native JSON implementation (warning: slow)."
+	unless defined? JSON
+		# Try to load a JSON implementation if it doesn't already exist:
 		require 'json'
-	
-		Relaxo::JSON = JSON
 	end
+	
+	Relaxo::JSON = JSON
 end
