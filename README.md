@@ -36,7 +36,7 @@ Connect to a local database and manipulate some documents.
 	doc2[:foo] = 'bar'
 	database.save(doc2)
 
-### Bulk Changes/Sessions ###
+### Transactions/Bulk Save ###
 
 Sessions support a very similar interface to the main database class and can for many cases be used interchangeably, but with added efficiency.
 
@@ -58,8 +58,7 @@ Sessions support a very similar interface to the main database class and can for
 	#	{:name=>"Chicken-san", "_id"=>"...", "_rev"=>"..."}
 	#]
 
-All documents will allocated uuids appropriately and at the end of the session block they will be updated (saved or deleted)
-using CouchDB `_bulk_save`.
+All documents will allocated UUIDs appropriately and at the end of the session block they will be updated (saved or deleted) using CouchDB `_bulk_save`. The Transactions interface doesn't support any kind of interaction with the server and thus views won't be updated until after the transaction is complete.
 
 To abort the session, either raise an exception or call `session.abort!` which is equivalent to `throw :abort`.
 
@@ -67,9 +66,24 @@ To abort the session, either raise an exception or call `session.abort!` which i
 
 Relaxo includes a command line script to import documents into a CouchDB database:
 
-	relaxo http://localhost:5984/test design.yaml sample.yaml
+	% relaxo --help
+	Usage: relaxo [options] [server-url] [files]
+	This script can be used to import data to CouchDB.
 
-Where `design.yaml` and `sample.yaml` contain lists of valid documents, e.g.:
+	Document creation:
+	        --existing [mode]            Control whether to 'update (new document attributes takes priority), 'merge' (existing document attributes takes priority) or replace (old document attributes discarded) existing documents.
+	        --format [type]              Control the input format. 'yaml' files are imported as a single document or array of documents. 'csv' files are imported as records using the first row as attribute keys.
+	        --[no-]transaction           Controls whether data is saved using the batch save operation. Not suitable for huge amounts of data.
+
+	Help and Copyright information:
+	        --copy                       Display copyright and warranty information
+	    -h, --help                       Show this help message.
+
+This command loads the documents stored in `design.yaml` and `sample.yaml` into the database at `http://localhost:5984/test`.
+
+	% relaxo http://localhost:5984/test design.yaml sample.yaml
+
+...where `design.yaml` and `sample.yaml` contain lists of valid documents, e.g.:
 
 	# design.yaml
 	-   _id: "_design/services"
@@ -82,6 +96,10 @@ Where `design.yaml` and `sample.yaml` contain lists of valid documents, e.g.:
 	                        emit(doc._id, doc._rev);
 	                    }
 	                }
+
+If you specify `--format=csv`, the input files will be parsed as standard CSV. The document schema is inferred from the zeroth (header) row and all subsequent rows will be converted to individual documents. All fields will be saved as text.
+
+If your requirements are more complex, consider writing a custom script either to import directly using the `relaxo` gem or convert your data to YAML and import that as above.
 
 License
 -------
