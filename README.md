@@ -18,7 +18,7 @@ Install the ruby gem as follows:
 To build and install the gem from source:
 
 	cd build/
-	sudo GEM=gem1.9 rake1.9 install_gem
+	sudo rake install_gem
 
 Basic Usage
 -----------
