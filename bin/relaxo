@@ -68,12 +68,23 @@ end.parse!
 
 url = ARGV.shift
 
-stderr.puts "Connecting to #{url}..."
+$stderr.puts "Connecting to #{url}..."
 database = Relaxo.connect(url)
+
+begin
+	info = database.info
+	
+	$stderr.puts "Connected to #{info['db_name']} which contains #{info['doc_count']} document(s)."
+rescue StandardError => error
+	$stderr.puts "Could not fetch info from database server!"
+	
+	throw
+end
+
 
 format = Formats.method(OPTIONS[:format])
 
-stats = {
+@stats = {
 	:saved => 0,
 	:errors => 0,
 	:total => 0
@@ -109,14 +120,14 @@ def process_document(database, document)
 		$stderr.puts "Saving #{document.inspect}"
 		result = database.save(document)
 		
-		stats[:saved] += 1
+		@stats[:saved] += 1
 	rescue RestClient::BadRequest => ex
 		$stderr.puts ex.inspect
 		
-		stats[:errors] += 1
+		@stats[:errors] += 1
 	end
 	
-	stats[:total] += 1
+	@stats[:total] += 1
 end
 
 begin
@@ -124,8 +135,8 @@ begin
 		process_document(database, document)
 	end
 ensure
-	$stderr.puts "#{stats[:saved]} document(s) saved out of #{stats[:total]}."
-	if stats[:errors] > 0
-		$stderr.puts "#{stats[:errors]} errors occurred!"
+	$stderr.puts "#{@stats[:saved]} document(s) saved out of #{@stats[:total]}."
+	if @stats[:errors] > 0
+		$stderr.puts "#{@stats[:errors]} errors occurred!"
 	end
 end
