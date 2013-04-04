@@ -1,27 +1,24 @@
-Relaxo
-======
-
-* Author: Samuel G. D. Williams (<http://www.oriontransfer.co.nz>)
-* Copyright (C) 2012 Samuel G. D. Williams.
-* Released under the MIT license.
-* [![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
+# Relaxo
 
 Relaxo provides a set of tools and interfaces for interacting with CouchDB. It aims to be as simple and efficient as possible while still improving the usability of various CouchDB features.
 
-Installation
-------------
+[![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
 
-Install the ruby gem as follows:
+## Installation
 
-	sudo gem install relaxo
+Add this line to your application's Gemfile:
 
-To build and install the gem from source:
+    gem 'relaxo'
 
-	cd build/
-	sudo rake install_gem
+And then execute:
 
-Basic Usage
------------
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install relaxo
+
+## Usage
 
 Connect to a local database and manipulate some documents.
 
@@ -36,7 +33,7 @@ Connect to a local database and manipulate some documents.
 	doc2[:foo] = 'bar'
 	database.save(doc2)
 
-### Transactions/Bulk Save ###
+### Transactions/Bulk Save
 
 Sessions support a very similar interface to the main database class and can for many cases be used interchangeably, but with added efficiency.
 
@@ -62,7 +59,7 @@ All documents will allocated UUIDs appropriately and at the end of the session b
 
 To abort the session, either raise an exception or call `session.abort!` which is equivalent to `throw :abort`.
 
-### Loading Data ###
+### Loading Data
 
 Relaxo includes a command line script to import documents into a CouchDB database:
 
@@ -101,10 +98,19 @@ If you specify `--format=csv`, the input files will be parsed as standard CSV. T
 
 If your requirements are more complex, consider writing a custom script either to import directly using the `relaxo` gem or convert your data to YAML and import that as above.
 
-License
--------
+## Contributing
 
-Copyright (c) 2010, 2011 Samuel G. D. Williams. <http://www.oriontransfer.co.nz>
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+## License
+
+Released under the MIT license.
+
+Copyright, 2012, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
