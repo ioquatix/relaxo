@@ -27,6 +27,11 @@ module Relaxo
 		if url =~ /^(https?:\/\/.+?)\/(.+)$/
 			host = $1
 			name = $2
+			
+			# Ensure that we use the default port if none has been specified:
+			unless host =~ /:\d+$/
+				host = host + ":5984"
+			end
 		else
 			name = url
 		end
