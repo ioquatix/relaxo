@@ -55,7 +55,7 @@ ARGV.options do |o|
 	o.separator "Help and Copyright information:"
 
 	o.on_tail("--copy", "Display copyright and warranty information") do
-		$stderr.puts "#{script_name} v#{Relaxo::VERSION::STRING}. Copyright (c) 2012 Samuel Williams."
+		$stderr.puts "#{script_name} v#{Relaxo::VERSION}. Copyright (c) 2012 Samuel Williams."
 		$stderr.puts "This software is released under the MIT license and comes with ABSOLUTELY NO WARRANTY."
 		exit
 	end
@@ -66,19 +66,20 @@ ARGV.options do |o|
 	end
 end.parse!
 
-$url = ARGV.shift
-$stderr.puts "Connecting to #{$url}..."
-$database = Relaxo.connect($url)
+url = ARGV.shift
 
-$format = Formats.method(OPTIONS[:format])
+stderr.puts "Connecting to #{url}..."
+database = Relaxo.connect(url)
 
-$stats = {
+format = Formats.method(OPTIONS[:format])
+
+stats = {
 	:saved => 0,
 	:errors => 0,
 	:total => 0
 }
 
-def process_document(database)
+def process_document(database, document)
 	begin
 		existing_document = nil
 		
@@ -106,25 +107,25 @@ def process_document(database)
 		end
 		
 		$stderr.puts "Saving #{document.inspect}"
-		$result = database.save(document)
+		result = database.save(document)
 		
-		$stats[:saved] += 1
+		stats[:saved] += 1
 	rescue RestClient::BadRequest => ex
 		$stderr.puts ex.inspect
 		
-		$stats[:errors] += 1
+		stats[:errors] += 1
 	end
 	
-	$stats[:total] += 1
+	stats[:total] += 1
 end
 
 begin
-	$format.call(ARGF) do |document|
-		process_document(document)
+	format.call(ARGF) do |document|
+		process_document(database, document)
 	end
 ensure
-	$stderr.puts "#{$stats[:saved]} document(s) saved out of #{$stats[:total]}."
-	if $stats[:errors] > 0
-		$stderr.puts "#{$stats[:errors]} errors occurred!"
+	$stderr.puts "#{stats[:saved]} document(s) saved out of #{stats[:total]}."
+	if stats[:errors] > 0
+		$stderr.puts "#{stats[:errors]} errors occurred!"
 	end
 end
