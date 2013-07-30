@@ -26,6 +26,38 @@ module Relaxo
 	# Typically returned from CouchDB when the request was successful:
 	SUCCESS = {'ok' => true}
 	
+	module Parameter
+		# Raw string parameter.
+		class Raw
+			def initialize(value)
+				@value = value
+			end
+			
+			def to_query_string
+				@value
+			end
+		end
+		
+		def self.Raw(value)
+			Raw.new(value)
+		end
+		
+		# Force JSON serialisation.
+		class JSON
+			def initialize(value)
+				@value = value
+			end
+			
+			def to_query_string
+				@value.to_json
+			end
+		end
+		
+		def self.JSON(value)
+			JSON.new(value)
+		end
+	end
+	
 	module Client
 		DEFAULT_GET_HEADERS = {:accept => :json}
 		DEFAULT_PUT_HEADERS = {:accept => :json, :content_type => :json}
@@ -109,7 +141,9 @@ module Relaxo
 			parameters.each do |key, value|
 				key_string = key.to_s
 				
-				if Symbol === value || key_string.end_with?("docid")
+				if value.respond_to? :to_query_string
+					query << escape(key_string) + '=' + escape(value.to_query_string)
+				elsif Symbol === value || key_string.end_with?("docid")
 					query << escape(key_string) + '=' + escape(value.to_s)
 				else
 					query << escape(key_string) + '=' + escape(value.to_json)

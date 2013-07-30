@@ -42,7 +42,7 @@ module Relaxo
 	class Database
 		def attach(document, name, data, options = {})
 			parameters = {
-				:rev => document[REV]
+				:rev => Parameter::Raw(document[REV])
 			}.merge(options[:parameters] || {})
 			
 			headers = {}
