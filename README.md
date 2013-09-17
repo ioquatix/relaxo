@@ -57,7 +57,7 @@ Sessions support a very similar interface to the main database class and can for
 
 All documents will allocated UUIDs appropriately and at the end of the session block they will be updated (saved or deleted) using CouchDB `_bulk_save`. The Transactions interface doesn't support any kind of interaction with the server and thus views won't be updated until after the transaction is complete.
 
-To abort the session, either raise an exception or call `session.abort!` which is equivalent to `throw :abort`.
+To abort the session, either raise an exception or call `transaction.abort!` which is equivalent to `throw :abort`.
 
 ### Loading Data
 
