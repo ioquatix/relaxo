@@ -5,3 +5,4 @@ rvm:
   - 2.2
 services:
   - couchdb
+env: COVERAGE=true
