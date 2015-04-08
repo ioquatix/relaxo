@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'helper'
+require_relative 'spec_helper'
 
 require 'relaxo'
 require 'relaxo/transaction'
 
-class TransactionTest < Test::Unit::TestCase
-	def setup
+RSpec.describe Relaxo::Transaction do
+	before :all do
 		@connection = Relaxo::Connection.new(TEST_DATABASE_HOST)
 		@database = Relaxo::Database.new(@connection, TEST_DATABASE_NAME)
 		
@@ -17,7 +17,7 @@ class TransactionTest < Test::Unit::TestCase
 		@database.create!
 	end
 	
-	def test_adding_documents
+	it "should create some documents" do
 		documents = @database.transaction do |txn|
 			10.times do |i|
 				txn.save({:i => i})
@@ -25,10 +25,10 @@ class TransactionTest < Test::Unit::TestCase
 		end
 		
 		# We got 10 document IDs back
-		assert_equal 10, documents.size
+		expect(documents.size).to be == 10
 	end
 	
-	def test_abortion
+	it "should abort transaction" do
 		all_documents = @database.documents
 		
 		documents = @database.transaction do |txn|
@@ -39,11 +39,11 @@ class TransactionTest < Test::Unit::TestCase
 			end
 		end
 		
-		assert_equal nil, documents
-		assert_equal all_documents, @database.documents
+		expect(documents).to be nil
+		expect(all_documents).to be == @database.documents
 	end
 	
-	def test_deletion
+	it "should delete some documents" do
 		documents = @database.transaction do |txn|
 			3.times do |i|
 				txn.save({:i => i})
@@ -57,7 +57,7 @@ class TransactionTest < Test::Unit::TestCase
 		end
 		
 		documents.each do |document|
-			assert_equal false, @database.id?(document[Relaxo::ID])
+			expect(@database.id?(document[Relaxo::ID])).to be false
 		end
 	end
 end

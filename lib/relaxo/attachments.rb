@@ -20,11 +20,7 @@
 
 require 'relaxo/database'
 
-if RUBY_VERSION < "1.9"
-	require 'relaxo/base64-1.8'
-else
-	require 'base64'
-end
+require 'base64'
 
 module Relaxo
 	ATTACHMENTS = '_attachments'
