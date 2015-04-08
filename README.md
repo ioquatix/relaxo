@@ -3,7 +3,8 @@
 Relaxo provides a set of tools and interfaces for interacting with CouchDB. It aims to be as simple and efficient as possible while still improving the usability of various CouchDB features.
 
 [![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
-
+[![Code Climate](https://codeclimate.com/github/ioquatix/relaxo.png)](https://codeclimate.com/github/ioquatix/relaxo)
+[![Coverage Status](https://coveralls.io/repos/ioquatix/relaxo/badge.svg)](https://coveralls.io/r/ioquatix/relaxo)
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -110,7 +111,7 @@ If your requirements are more complex, consider writing a custom script either t
 
 Released under the MIT license.
 
-Copyright, 2012, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
+Copyright, 2015, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
