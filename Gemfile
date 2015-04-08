@@ -4,5 +4,10 @@ source 'https://rubygems.org'
 gemspec
 
 platforms :jruby do
-  gem 'jruby-openssl'
+	gem 'jruby-openssl'
+end
+
+group :test do
+	gem 'simplecov'
+	gem 'coveralls', require: false
 end
