@@ -49,5 +49,9 @@ module Relaxo
 		def databases
 			Client.get("#{@url}/_all_dbs")
 		end
+		
+		def configuration
+			Client.get("#{@url}/_config")
+		end
 	end
 end
