@@ -4,11 +4,11 @@ rvm:
   - 2.1.8
   - 2.2.4
   - 2.3.1
-  - ruby-head
   - rbx-2
 services:
   - couchdb
 env: COVERAGE=true
 matrix:
   allow_failures:
+    - rvm: ruby-head
     - rvm: "rbx-2"
