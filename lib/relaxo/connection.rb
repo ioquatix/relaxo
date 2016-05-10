@@ -35,10 +35,6 @@ module Relaxo
 		
 		attr :url
 		
-		private def fetch_uuids(count)
-			@uuids += Client.get("#{@url}/_uuids?count=#{count}")["uuids"]
-		end
-		
 		# This implementation could be improved. It's not exactly fast to request 1 UUID at a time. One idea is to add a UUID queue to Transaction which allows UUIDs to be fetched in bulk on a per-transaction basis, and reused if the transaction fails.
 		def next_uuid
 			@uuid_lock.synchronize do
@@ -59,6 +55,12 @@ module Relaxo
 		
 		def configuration
 			Client.get("#{@url}/_config")
+		end
+		
+		private
+		
+		def fetch_uuids(count)
+			@uuids += Client.get("#{@url}/_uuids?count=#{count}")["uuids"]
 		end
 	end
 end
