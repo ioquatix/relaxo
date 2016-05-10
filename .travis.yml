@@ -6,6 +6,8 @@ rvm:
   - 2.3.1
   - ruby-head
   - rbx-2
+services:
+  - couchdb
 env: COVERAGE=true
 matrix:
   allow_failures:
