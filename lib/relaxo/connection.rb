@@ -20,6 +20,8 @@
 
 require 'relaxo/client'
 
+require 'thread'
+
 module Relaxo
 	class Connection
 		DEFAULT_UUID_FETCH_COUNT = 10
@@ -27,18 +29,23 @@ module Relaxo
 		def initialize(url)
 			@url = url
 			@uuids = []
+			
+			@uuid_lock = Mutex.new
 		end
 		
 		attr :url
 		
-		def fetch_uuids(count)
+		private def fetch_uuids(count)
 			@uuids += Client.get("#{@url}/_uuids?count=#{count}")["uuids"]
 		end
 		
+		# This implementation could be improved. It's not exactly fast to request 1 UUID at a time. One idea is to add a UUID queue to Transaction which allows UUIDs to be fetched in bulk on a per-transaction basis, and reused if the transaction fails.
 		def next_uuid
-			fetch_uuids(DEFAULT_UUID_FETCH_COUNT) if @uuids.size == 0
+			@uuid_lock.synchronize do
+				fetch_uuids(DEFAULT_UUID_FETCH_COUNT) if @uuids.size == 0
 			
-			@uuids.pop
+				return @uuids.pop
+			end
 		end
 		
 		def info
