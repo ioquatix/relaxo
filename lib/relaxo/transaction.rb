@@ -25,8 +25,8 @@ module Relaxo
 	
 	# We monkey-patch this in as Transaction is basically an optional feature for doing bulk_saves.
 	class Database
-		def transaction(klass = nil)
-			transaction = Transaction.new(self)
+		def transaction(klass = nil, metadata = {})
+			transaction = Transaction.new(self, metadata)
 			
 			catch(:abort) do
 				yield transaction
@@ -43,11 +43,16 @@ module Relaxo
 	end
 	
 	class Transaction
-		def initialize(database)
+		def initialize(database, metadata = {})
 			@database = database
+			@metadata = {}
 			
 			@documents = []
 			@uuids = []
+		end
+		
+		def [] key
+			@metadata[key] || @database[key]
 		end
 		
 		def get(*args)

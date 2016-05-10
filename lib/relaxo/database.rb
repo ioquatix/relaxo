@@ -27,9 +27,11 @@ module Relaxo
 	DELETED = '_deleted'
 	
 	class Database
-		def initialize(connection, name)
+		def initialize(connection, name, metadata = {})
 			@connection = connection
 			@name = name
+			
+			@metadata = metadata
 			
 			@root = connection.url + "/" + CGI.escape(name)
 		end
@@ -37,6 +39,12 @@ module Relaxo
 		attr :connection
 		attr :name
 		attr :root
+		
+		attr :metadata
+		
+		def [] key
+			@metadata[key]
+		end
 		
 		# Create the database, will potentially throw an exception if it already exists.
 		def create!

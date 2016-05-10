@@ -21,7 +21,7 @@
 require 'relaxo/database'
 
 module Relaxo
-	def self.connect(url)
+	def self.connect(url, metadata = nil)
 		host = "http://localhost:5984"
 		
 		if url =~ /^(https?:\/\/.+?)\/(.+)$/
@@ -37,6 +37,6 @@ module Relaxo
 		end
 		
 		connection = Connection.new(host)
-		database = Database.new(connection, name)
+		database = Database.new(connection, name, metadata)
 	end
 end
