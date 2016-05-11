@@ -41,7 +41,7 @@ module Relaxo
 				end
 			end
 
-			if existing_schema != @document
+			if existing_document != @document
 				db.save(@document)
 			end
 		end
