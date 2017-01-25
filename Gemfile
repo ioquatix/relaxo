@@ -3,8 +3,10 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in relaxo.gemspec
 gemspec
 
-platforms :jruby do
-	gem 'jruby-openssl'
+gem 'rugged', git: 'git://github.com/libgit2/rugged.git', submodules: true
+
+group :development do
+	gem "pry"
 end
 
 group :test do

@@ -29,6 +29,7 @@ module Relaxo
 			name = $2
 			
 			# Ensure that we use the default port if none has been specified:
+			# TODO: When specifying a name like "https://foobar.net" you get unexpected behaviour. Review.
 			unless host =~ /:\d+$/
 				host = host + ":5984"
 			end
