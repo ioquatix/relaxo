@@ -18,118 +18,53 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'relaxo/client'
-require 'relaxo/connection'
+require 'rugged'
+
+require_relative 'reader'
+require_relative 'writer'
 
 module Relaxo
-	ID = '_id'
-	REV = '_rev'
-	DELETED = '_deleted'
-	
 	class Database
-		def initialize(connection, name, metadata = {})
-			@connection = connection
-			@name = name
-			
+		def initialize(path, metadata = {})
+			@path = path
 			@metadata = metadata
 			
-			@root = connection.url + "/" + CGI.escape(name)
+			@repository = Rugged::Repository.new(path)
 		end
 		
-		attr :connection
-		attr :name
-		attr :root
-		
+		attr :path
 		attr :metadata
+		attr :repository
+		
+		def empty?
+			@repository.empty?
+		end
 		
 		def [] key
 			@metadata[key]
 		end
 		
-		# Create the database, will potentially throw an exception if it already exists.
-		def create!
-			Client.put @root
-		end
-		
-		# Return true if the database already exists.
-		def exist?
-			Client.head @root
-		end
-		
-		# Delete the database and all data.
-		def delete!
-			Client.delete @root
-		end
-		
-		# Compact the database, removing old document revisions and optimizing space use.
-		def compact!
-			Client.post "#{@root}/_compact"
-		end
-		
-		def id?(id, parameters = {})
-			Client.head document_url(id, parameters)
-		end
-		
-		def get(id, parameters = {})
-			Client.get document_url(id, parameters)
-		end
-		
-		def put(document)
-			Client.put document_url(document[ID] || @connection.next_uuid), document
-		end
-		
-		def delete(document)
-			Client.delete document_url(document[ID]) + "?rev=#{document[REV]}"
-		end
-		
-		def save(document)
-			status = put(document)
-			
-			if status['ok']
-				document[ID] = status['id']
-				document[REV] = status['rev']
+		def commit!(message)
+			catch(:abort) do
+				begin
+					writer = Writer.new(@repository)
+				
+					yield writer
+				end while writer.conflicts?
+				
+				writer.commit!(message)
 			end
-			
-			return status
 		end
 		
-		def bulk_save(documents, options = {})
-			options = {
-				:docs => documents,
-				:all_or_nothing => true
-			}.merge(options)
-			
-			Client.post command_url("_bulk_docs"), options
+		def empty?
+			@repository.empty?
 		end
 		
-		# Accepts paramaters as described in http://wiki.apache.org/couchdb/HttpViewApi
-		def view(name, parameters = {})
-			Client.get view_url(name, parameters)
-		end
-		
-		def info
-			Client.get @root
-		end
-		
-		def documents(parameters = {})
-			view("_all_docs", parameters)
-		end
-		
-		private
-		
-		# Convert a simplified view name into a complete view path. If the name already starts with a "_" no alterations will be made.
-		def view_url(name, parameters = {})
-			path = (name =~ /^([^_].+?)\/(.*)$/ ? "_design/#{$1}/_view/#{$2}" : name)
-			
-			Client.encode_url("#{@root}/#{path}", parameters)
-		end
-		
-		def document_url(id, parameters = {})
-			Client.encode_url("#{@root}/#{Client.escape_id(id)}", parameters)
-		end
-		
-		def command_url(command, parameters = {})
-			Client.encode_url("#{@root}/#{command}", parameters)
+		# Efficient point-in-time read-only access.
+		def reader
+			unless @repository.empty?
+				Reader.new(@repository, @repository.head.target.tree)
+			end
 		end
 	end
 end

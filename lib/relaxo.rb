@@ -20,24 +20,14 @@
 
 require 'relaxo/database'
 
+require 'pry'
+
 module Relaxo
-	def self.connect(url, metadata = nil)
-		host = "http://localhost:5984"
-		
-		if url =~ /^(https?:\/\/.+?)\/(.+)$/
-			host = $1
-			name = $2
-			
-			# Ensure that we use the default port if none has been specified:
-			# TODO: When specifying a name like "https://foobar.net" you get unexpected behaviour. Review.
-			unless host =~ /:\d+$/
-				host = host + ":5984"
-			end
-		else
-			name = url
+	def self.connect(path, metadata = nil)
+		unless File.exist?(path)
+			Rugged::Repository.init_at(path, :bare)
 		end
 		
-		connection = Connection.new(host)
-		database = Database.new(connection, name, metadata)
+		database = Database.new(path, metadata)
 	end
 end

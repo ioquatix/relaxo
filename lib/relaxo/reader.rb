@@ -18,16 +18,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# You can define `Relaxo::JSON` before loading Relaxo, and it will use this implementation without trying to load the default JSON implementation.
+require 'rugged'
 
 module Relaxo
-end
-
-unless defined? Relaxo::JSON
-	unless defined? JSON
-		# Try to load a JSON implementation if it doesn't already exist:
-		require 'json'
+	class Reader
+		def initialize(repository, tree)
+			@repository = repository
+			@tree = tree
+		end
+		
+		private def fetch_object(path)
+			if entry = @tree.path(path) and oid = entry[:oid]
+				case entry[:type]
+				when :blob
+					@repository.read(oid)
+				end
+			end
+		end
+		
+		def [] key
+			fetch_object(key).data
+		end
 	end
-	
-	Relaxo::JSON = JSON
 end

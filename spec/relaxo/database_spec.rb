@@ -1,52 +1,54 @@
-#!/usr/bin/env ruby
 
 require 'relaxo'
-require 'relaxo/attachments'
-
-require_relative 'spec_helper'
 
 RSpec.describe Relaxo::Database do
-	before :all do
-		@connection = Relaxo::Connection.new(TEST_DATABASE_HOST)
-		@database = Relaxo::Database.new(@connection, TEST_DATABASE_NAME)
-		
-		if @database.exist?
-			@database.delete!
+	let(:database) {Relaxo.connect(File.join(__dir__, 'test'))}
+	
+	let(:document_path) {'test/document.json'}
+	let(:sample_json) {'[1, 2, 3]'}
+	
+	after(:each) {FileUtils.rm_rf(database.path)}
+	
+	it "should create a document" do
+		database.commit!("Create test document") do |dataset|
+			dataset.write(document_path, sample_json)
 		end
 		
-		@database.create!
-	end
-	
-	it "should connect and add a document" do
-		expect(@database.id?('foobar')).to be false
-		
-		document = {'animal' => 'Cat', 'name' => 'Seifa'}
-		
-		@database.save(document)
-		
-		id = document[Relaxo::ID]
-		expect(@database.id?(id)).to be true
-		
-		copy = @database.get(id)
-		document.each do |key, value|
-			expect(copy[key]).to be == value
+		database.reader do |dataset|
+			expect(dataset.read(document_path)).to be == sample_json
 		end
 	end
 	
-	it "should save an attachment" do
-		document = {
-			Relaxo::ATTACHMENTS => {
-				"foo.txt" => {
-					"content_type" => "text\/plain",
-					"data" => "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
-				}
-			}
-		}
+	it "should erase a document" do
+		database.commit!("Create test document") do |dataset|
+			dataset.write(document_path, sample_json)
+		end
 		
-		result = @database.save(document)
-		expect(result['ok']).to be true
+		database.commit!("Remove test document") do |dataset|
+			dataset.delete(document_path)
+		end
 		
-		document = @database.get(document[Relaxo::ID])
-		expect(document[Relaxo::ATTACHMENTS].size).to be == 1
+		database.reader do |dataset|
+			expect(dataset.read(document_path)).to be_falsey
+		end
+	end
+	
+	it "should create multiple documents" do
+		database.commit!("Create first document") do |dataset|
+			dataset.write(document_path, sample_json)
+		end
+		
+		database.commit!("Create second document") do |dataset|
+			dataset.write(document_path + '2', sample_json)
+		end
+		
+		database.reader do |dataset|
+			expect(dataset.read(document_path)).to be == sample_json
+			expect(dataset.read(document_path + '2')).to be == sample_json
+		end
+	end
+	
+	it "can enumerate documents" do
+		
 	end
 end

@@ -10,5 +10,9 @@ task :default => :spec
 task :console do
 	require 'pry'
 	
+	require_relative 'lib/relaxo'
+	
+	DB = Relaxo.connect(File.join(__dir__, 'testdb'))
+	
 	Pry.start
 end
