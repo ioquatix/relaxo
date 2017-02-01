@@ -18,41 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rugged'
+require_relative 'dataset'
 
 module Relaxo
-	class Writer
+	class Transaction < Dataset
 		HEAD = 'HEAD'.freeze
 
-		def initialize(repository)
-			@repository = repository
+		def initialize(repository, tree)
+			super
+			
 			@index = Rugged::Index.new
 			
 			unless @repository.empty?
-				tree = repository.head.target.tree
-				@index.read_tree(tree)
-			end
-		end
-		
-		attr :repository
-		attr :index
-		
-		private def fetch_object(path)
-			if @index and entry = @index[path]
-				if oid = entry[:oid]
-					@repository.read(oid)
-				end
+				@index.read_tree(@tree)
 			end
 		end
 		
 		def read(path)
-			# Perhaps add a cache in here if lookup is slow.
 			if object = fetch_object(path)
 				object.data
 			end
 		end
-		
-		alias [] read
 		
 		def write(path, data, type = :blob, mode = 0100644)
 			oid = @repository.write(data, type)
@@ -66,10 +52,10 @@ module Relaxo
 			@index.remove(path)
 		end
 		
-		def each(pattern, &block)
-			return to_enum(:each, pattern) unless block_given?
+		def each(path = nil)
+			return to_enum(:each, path) unless block_given?
 			
-			if pattern
+			if path
 				# This huge hack can be removed once the git_index_find_prefix is implemented.
 				found = false
 				@index.each do |entry|
@@ -81,10 +67,16 @@ module Relaxo
 						break if found
 					end
 					
-					yield(entry) if found
+					if found and entry[:type] == :blob
+						yield @repository.read(entry[:oid]).data
+					end
 				end
 			else
-				@index.each(&block)
+				@index.each do |entry|
+					if entry[:type] == :blob
+						yield @repository.read(entry[:oid]).data
+					end
+				end
 			end
 		end
 		
@@ -96,11 +88,11 @@ module Relaxo
 			@index.conflicts?
 		end
 		
-		def commit!(message)
+		def commit!(message, update_ref = HEAD)
 			options = {
 				tree: @index.write_tree(@repository),
 				parents: self.parents,
-				update_ref: HEAD,
+				update_ref: update_ref,
 				message: message
 			}
 			

@@ -20,8 +20,8 @@
 
 require 'rugged'
 
-require_relative 'reader'
-require_relative 'writer'
+require_relative 'dataset'
+require_relative 'transaction'
 
 module Relaxo
 	class Database
@@ -44,15 +44,15 @@ module Relaxo
 			@metadata[key]
 		end
 		
-		def commit!(message)
+		def transaction(message)
 			catch(:abort) do
 				begin
-					writer = Writer.new(@repository)
+					dataset = Transaction.new(@repository, current_tree)
 				
-					yield writer
-				end while writer.conflicts?
+					yield dataset
+				end while dataset.conflicts?
 				
-				writer.commit!(message)
+				dataset.commit!(message)
 			end
 		end
 		
@@ -61,10 +61,22 @@ module Relaxo
 		end
 		
 		# Efficient point-in-time read-only access.
-		def reader
+		def current
 			unless @repository.empty?
-				Reader.new(@repository, @repository.head.target.tree)
+				dataset = Dataset.new(@repository, current_tree)
+				
+				yield dataset if block_given?
+				
+				return dataset
 			end
+		end
+		
+		private
+		
+		def current_tree
+			@repository.head.target.tree
+		rescue Rugged::ReferenceError
+			nil
 		end
 	end
 end

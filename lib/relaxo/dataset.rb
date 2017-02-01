@@ -21,23 +21,38 @@
 require 'rugged'
 
 module Relaxo
-	class Reader
+	class Dataset
 		def initialize(repository, tree)
 			@repository = repository
 			@tree = tree
 		end
 		
-		private def fetch_object(path)
-			if entry = @tree.path(path) and oid = entry[:oid]
-				case entry[:type]
-				when :blob
-					@repository.read(oid)
-				end
+		def read(path)
+			if entry = @tree.path(path) and entry[:type] == :blob and oid = entry[:oid]
+				@repository.read(oid).data
+			end
+		rescue Rugged::TreeError
+			return nil
+		end
+		
+		alias [] read
+		
+		def each(path = nil)
+			return to_enum(:each, path) unless block_given?
+			
+			tree = path ? fetch_tree(path) : @tree
+			
+			tree.each_blob do |entry|
+				yield @repository.read(entry[:oid])
 			end
 		end
 		
-		def [] key
-			fetch_object(key).data
+		private
+		
+		def fetch_tree(path)
+			entry = @tree.path(path)
+			
+			Rugged::Tree.new(@repository, entry[:oid])
 		end
 	end
 end
