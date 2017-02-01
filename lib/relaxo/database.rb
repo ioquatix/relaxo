@@ -62,21 +62,27 @@ module Relaxo
 		
 		# Efficient point-in-time read-only access.
 		def current
-			unless @repository.empty?
-				dataset = Dataset.new(@repository, current_tree)
-				
-				yield dataset if block_given?
-				
-				return dataset
-			end
+			dataset = Dataset.new(@repository, current_tree)
+			
+			yield dataset if block_given?
+			
+			return dataset
 		end
 		
 		private
 		
 		def current_tree
-			@repository.head.target.tree
+			if head = @repository.head
+				head.target.tree
+			else
+				empty_tree
+			end
 		rescue Rugged::ReferenceError
-			nil
+			empty_tree
+		end
+		
+		def empty_tree
+			@empty_tree ||= Rugged::Tree.empty(@repository)
 		end
 	end
 end
