@@ -2,12 +2,13 @@
 require 'relaxo'
 
 RSpec.describe Relaxo::Database do
-	let(:database) {Relaxo.connect(File.join(__dir__, 'test'))}
+	let(:database_path) {File.join(__dir__, 'test')}
+	let(:database) {Relaxo.connect(database_path)}
 	
 	let(:document_path) {'test/document.json'}
 	let(:sample_json) {'[1, 2, 3]'}
 	
-	after(:each) {FileUtils.rm_rf(database.path)}
+	before(:each) {FileUtils.rm_rf(database_path)}
 	
 	it "should create a document" do
 		database.transaction("Create test document") do |dataset|

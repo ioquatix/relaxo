@@ -35,9 +35,11 @@ module Relaxo
 		end
 		
 		def read(path)
-			if object = fetch_object(path)
-				object.data
+			if entry = @index[path] and entry[:type] == :blob and oid = entry[:oid]
+				@repository.read(oid).data
 			end
+		rescue Rugged::TreeError
+			return nil
 		end
 		
 		def write(path, data, type = :blob, mode = 0100644)

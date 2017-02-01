@@ -37,6 +37,10 @@ module Relaxo
 		
 		alias [] read
 		
+		def exist?(path)
+			read(path) != nil
+		end
+		
 		def each(path = nil)
 			return to_enum(:each, path) unless block_given?
 			
