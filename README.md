@@ -5,6 +5,7 @@ Relaxo provides a set of tools and interfaces for interacting with CouchDB. It a
 [![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.png)](http://travis-ci.org/ioquatix/relaxo)
 [![Code Climate](https://codeclimate.com/github/ioquatix/relaxo.png)](https://codeclimate.com/github/ioquatix/relaxo)
 [![Coverage Status](https://coveralls.io/repos/ioquatix/relaxo/badge.svg)](https://coveralls.io/r/ioquatix/relaxo)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -34,27 +35,22 @@ Connect to a local database and manipulate some documents.
 	doc2[:foo] = 'bar'
 	database.save(doc2)
 
-### Transactions/Bulk Save
+### Datasets and Transactions
 
-Sessions support a very similar interface to the main database class and can for many cases be used interchangeably, but with added efficiency.
+Datasets and Transactions are important concepts within relaxo.
 
 	require 'relaxo'
-	require 'relaxo/session'
+	require 'securerandom'
 	
 	database = Relaxo.connect("http://localhost:5984/test")
 	animals = ['Neko-san', 'Wan-chan', 'Nezu-chan', 'Chicken-san']
 	
-	database.transaction do |transaction|
+	# All writes must occur within a commit:
+	database.commit("Add animals") do |dataset|
 		animals.each do |animal|
-			transaction.save({:name => animal})
+			dataset.write("/animals/#{SecureRandom.uuid}", JSON.dump({name: animal}))
 		end
 	end
-	# => [
-	#	{:name=>"Neko-san", "_id"=>"...", "_rev"=>"..."},
-	#	{:name=>"Wan-chan", "_id"=>"...", "_rev"=>"..."},
-	#	{:name=>"Nezu-chan", "_id"=>"...", "_rev"=>"..."},
-	#	{:name=>"Chicken-san", "_id"=>"...", "_rev"=>"..."}
-	#]
 
 All documents will allocated UUIDs appropriately and at the end of the session block they will be updated (saved or deleted) using CouchDB `_bulk_save`. The Transactions interface doesn't support any kind of interaction with the server and thus views won't be updated until after the transaction is complete.
 

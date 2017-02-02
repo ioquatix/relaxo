@@ -90,13 +90,10 @@ module Relaxo
 			@index.conflicts?
 		end
 		
-		def commit!(message, update_ref = HEAD)
-			options = {
-				tree: @index.write_tree(@repository),
-				parents: self.parents,
-				update_ref: update_ref,
-				message: message
-			}
+		def commit!(**options)
+			options[:tree] = @index.write_tree(@repository)
+			options[:parents] ||= self.parents
+			options[:update_ref] ||= HEAD
 			
 			Rugged::Commit.create(@repository, options)
 		end

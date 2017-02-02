@@ -29,7 +29,7 @@ module Relaxo
 			@path = path
 			@metadata = metadata
 			
-			@repository = Rugged::Repository.new(path)
+			@repository = repository || Rugged::Repository.new(path)
 		end
 		
 		attr :path
@@ -44,7 +44,8 @@ module Relaxo
 			@metadata[key]
 		end
 		
-		def transaction(message)
+		# During the execution of the block, changes don't get stored immediately, so reading from the dataset (from outside the block) will continue to return the values that were stored in the configuration when the transaction was started.
+		def commit(**options)
 			catch(:abort) do
 				begin
 					dataset = Transaction.new(@repository, current_tree)
@@ -52,7 +53,7 @@ module Relaxo
 					yield dataset
 				end while dataset.conflicts?
 				
-				dataset.commit!(message)
+				dataset.commit!(**options)
 			end
 		end
 		

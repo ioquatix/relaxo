@@ -25,7 +25,7 @@ require 'pry'
 module Relaxo
 	def self.connect(path, metadata = nil)
 		unless File.exist?(path)
-			Rugged::Repository.init_at(path, :bare)
+			Rugged::Repository.init_at(path, true)
 		end
 		
 		database = Database.new(path, metadata)

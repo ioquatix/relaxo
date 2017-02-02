@@ -11,7 +11,7 @@ RSpec.describe Relaxo::Database do
 	before(:each) {FileUtils.rm_rf(database_path)}
 	
 	it "should create a document" do
-		database.transaction("Create test document") do |dataset|
+		database.commit(message: "Create test document") do |dataset|
 			dataset.write(document_path, sample_json)
 		end
 		
@@ -21,11 +21,11 @@ RSpec.describe Relaxo::Database do
 	end
 	
 	it "should erase a document" do
-		database.transaction("Create test document") do |dataset|
+		database.commit(message: "Create test document") do |dataset|
 			dataset.write(document_path, sample_json)
 		end
 		
-		database.transaction("Remove test document") do |dataset|
+		database.commit(message: "Remove test document") do |dataset|
 			dataset.delete(document_path)
 		end
 		
@@ -35,11 +35,11 @@ RSpec.describe Relaxo::Database do
 	end
 	
 	it "should create multiple documents" do
-		database.transaction("Create first document") do |dataset|
+		database.commit(message: "Create first document") do |dataset|
 			dataset.write(document_path, sample_json)
 		end
 		
-		database.transaction("Create second document") do |dataset|
+		database.commit(message: "Create second document") do |dataset|
 			dataset.write(document_path + '2', sample_json)
 		end
 		
@@ -50,7 +50,7 @@ RSpec.describe Relaxo::Database do
 	end
 	
 	it "can enumerate documents" do
-		database.transaction("Create first document") do |dataset|
+		database.commit(message: "Create first document") do |dataset|
 			10.times do |id|
 				dataset.write(document_path + "-#{id}", sample_json)
 			end
