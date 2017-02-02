@@ -36,6 +36,10 @@ module Relaxo
 		attr :metadata
 		attr :repository
 		
+		def default_author
+			@default_author ||= @metadata[:author]
+		end
+		
 		def empty?
 			@repository.empty?
 		end
@@ -46,6 +50,8 @@ module Relaxo
 		
 		# During the execution of the block, changes don't get stored immediately, so reading from the dataset (from outside the block) will continue to return the values that were stored in the configuration when the transaction was started.
 		def commit(**options)
+			options[:author] ||= default_author
+			
 			catch(:abort) do
 				begin
 					dataset = Transaction.new(@repository, current_tree)
