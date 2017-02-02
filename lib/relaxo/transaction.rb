@@ -28,14 +28,11 @@ module Relaxo
 			super
 			
 			@index = Rugged::Index.new
-			
-			unless @repository.empty?
-				@index.read_tree(@tree)
-			end
+			@index.read_tree(@tree)
 		end
 		
 		def read(path)
-			if entry = @index[path] and entry[:type] == :blob and oid = entry[:oid]
+			if entry = @index[path] and oid = entry[:oid]
 				@repository.read(oid).data
 			end
 		rescue Rugged::TreeError

@@ -1,6 +1,6 @@
 # Relaxo
 
-Relaxo provides a set of tools and interfaces for interacting with CouchDB. It aims to be as simple and efficient as possible while still improving the usability of various CouchDB features.
+Relaxo is a transactional database built on top of git. It's aim is to provide a robust interface for document storage.
 
 [![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.svg)](http://travis-ci.org/ioquatix/relaxo)
 [![Code Climate](https://codeclimate.com/github/ioquatix/relaxo.svg)](https://codeclimate.com/github/ioquatix/relaxo)
@@ -10,30 +10,38 @@ Relaxo provides a set of tools and interfaces for interacting with CouchDB. It a
 
 Add this line to your application's Gemfile:
 
-    gem 'relaxo'
+	gem 'relaxo'
 
 And then execute:
 
-    $ bundle
+	$ bundle
 
 Or install it yourself as:
 
-    $ gem install relaxo
+	$ gem install relaxo
 
 ## Usage
 
 Connect to a local database and manipulate some documents.
 
 	require 'relaxo'
+	require 'msgpack'
 	
-	database = Relaxo.connect("http://localhost:5984/test")
+	DB = Relaxo.connect("test")
 	
-	doc1 = {:bob => 'dole'}
-	database.save(doc1)
+	DB.commit(message: "Create test data") do |dataset|
+		dataset.write("doc1.json", MessagePack.dump({bob: 'dole'}))
+	end
 	
-	doc2 = database.get(doc1['_id'])
-	doc2[:foo] = 'bar'
-	database.save(doc2)
+	DB.commit(message: "Update test data") do |dataset|
+		doc = MessagePack.load dataset.read('doc1.json')
+		doc[:foo] = 'bar'
+		dataset.write("doc2.json", MessagePack.dump(doc))
+	end
+	
+	doc = MessagePack.load DB.current['doc2.json']
+	puts doc
+	# => {"bob"=>"dole", "foo"=>"bar"}
 
 ### Datasets and Transactions
 
@@ -65,13 +73,13 @@ Relaxo includes a command line script to import documents into a CouchDB databas
 	This script can be used to import data to CouchDB.
 
 	Document creation:
-	        --existing [mode]            Control whether to 'update (new document attributes takes priority), 'merge' (existing document attributes takes priority) or replace (old document attributes discarded) existing documents.
-	        --format [type]              Control the input format. 'yaml' files are imported as a single document or array of documents. 'csv' files are imported as records using the first row as attribute keys.
-	        --[no-]transaction           Controls whether data is saved using the batch save operation. Not suitable for huge amounts of data.
+					--existing [mode]            Control whether to 'update (new document attributes takes priority), 'merge' (existing document attributes takes priority) or replace (old document attributes discarded) existing documents.
+					--format [type]              Control the input format. 'yaml' files are imported as a single document or array of documents. 'csv' files are imported as records using the first row as attribute keys.
+					--[no-]transaction           Controls whether data is saved using the batch save operation. Not suitable for huge amounts of data.
 
 	Help and Copyright information:
-	        --copy                       Display copyright and warranty information
-	    -h, --help                       Show this help message.
+					--copy                       Display copyright and warranty information
+			-h, --help                       Show this help message.
 
 This command loads the documents stored in `design.yaml` and `sample.yaml` into the database at `http://localhost:5984/test`.
 
@@ -81,15 +89,15 @@ This command loads the documents stored in `design.yaml` and `sample.yaml` into 
 
 	# design.yaml
 	-   _id: "_design/services"
-	    language: javascript
-	    views:
-	        service:
-	            map: |
-	                function(doc) {
-	                    if (doc.type == 'service') {
-	                        emit(doc._id, doc._rev);
-	                    }
-	                }
+			language: javascript
+			views:
+					service:
+							map: |
+									function(doc) {
+											if (doc.type == 'service') {
+													emit(doc._id, doc._rev);
+											}
+									}
 
 If you specify `--format=csv`, the input files will be parsed as standard CSV. The document schema is inferred from the zeroth (header) row and all subsequent rows will be converted to individual documents. All fields will be saved as text.
 
