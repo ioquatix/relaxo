@@ -10,6 +10,7 @@ task :default => :spec
 task :console do
 	require 'pry'
 	require 'msgpack'
+	require 'securerandom'
 	
 	require_relative 'lib/relaxo'
 	

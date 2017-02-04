@@ -14,21 +14,23 @@ RSpec.describe Relaxo::Database do
 	
 	it "should create a document" do
 		database.commit(message: "Create test document") do |dataset|
-			dataset.write(document_path, sample_json)
+			oid = dataset.append(sample_json)
+			dataset.write(document_path, oid)
 		end
 		
 		database.current do |dataset|
-			expect(dataset[document_path]).to be == sample_json
+			expect(dataset[document_path].data).to be == sample_json
 		end
 	end
 	
 	it "should erase a document" do
 		database.commit(message: "Create test document") do |dataset|
-			dataset.write(document_path, sample_json)
+			oid = dataset.append(sample_json)
+			dataset.write(document_path, oid)
 		end
 		
 		database.commit(message: "Remove test document") do |dataset|
-			dataset.delete(document_path)
+			dataset.remove(document_path)
 		end
 		
 		database.current do |dataset|
@@ -38,23 +40,27 @@ RSpec.describe Relaxo::Database do
 	
 	it "should create multiple documents" do
 		database.commit(message: "Create first document") do |dataset|
-			dataset.write(document_path, sample_json)
+			oid = dataset.append(sample_json)
+			dataset.write(document_path, oid)
 		end
 		
 		database.commit(message: "Create second document") do |dataset|
-			dataset.write(document_path + '2', sample_json)
+			oid = dataset.append(sample_json)
+			dataset.write(document_path + '2', oid)
 		end
 		
 		database.current do |dataset|
-			expect(dataset[document_path]).to be == sample_json
-			expect(dataset[document_path + '2']).to be == sample_json
+			expect(dataset[document_path].data).to be == sample_json
+			expect(dataset[document_path + '2'].data).to be == sample_json
 		end
 	end
 	
 	it "can enumerate documents" do
 		database.commit(message: "Create first document") do |dataset|
+			oid = dataset.append(sample_json)
+			
 			10.times do |id|
-				dataset.write(document_path + "-#{id}", sample_json)
+				dataset.write(document_path + "-#{id}", oid)
 			end
 		end
 		

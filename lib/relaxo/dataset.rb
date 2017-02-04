@@ -27,9 +27,13 @@ module Relaxo
 			@tree = tree
 		end
 		
+		def lookup(oid)
+			@repository.read(oid)
+		end
+		
 		def read(path)
 			if entry = @tree.path(path) and entry[:type] == :blob and oid = entry[:oid]
-				@repository.read(oid).data
+				lookup(oid)
 			end
 		rescue Rugged::TreeError
 			return nil
@@ -47,7 +51,7 @@ module Relaxo
 			tree = path ? fetch_tree(path) : @tree
 			
 			tree.each_blob do |entry|
-				yield @repository.read(entry[:oid])
+				yield entry[:name], @repository.read(entry[:oid])
 			end
 		end
 		

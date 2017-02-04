@@ -33,21 +33,25 @@ module Relaxo
 		
 		def read(path)
 			if entry = @index[path] and oid = entry[:oid]
-				@repository.read(oid).data
+				lookup(oid)
 			end
 		rescue Rugged::TreeError
 			return nil
 		end
 		
-		def write(path, data, type = :blob, mode = 0100644)
+		def append(data, type = :blob)
 			oid = @repository.write(data, type)
 			
-			@index.add(path: path, oid: oid, mode: mode)
+			return Rugged::Object.new(@repository, oid)
+		end
+		
+		def write(path, object, mode = 0100644)
+			@index.add(path: path, oid: object.oid, mode: mode)
 		end
 		
 		alias []= write
 		
-		def delete(path)
+		def remove(path)
 			@index.remove(path)
 		end
 		
@@ -85,6 +89,10 @@ module Relaxo
 		
 		def conflicts?
 			@index.conflicts?
+		end
+		
+		def abort!
+			throw :abort
 		end
 		
 		def commit!(**options)
