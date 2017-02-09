@@ -48,10 +48,10 @@ module Relaxo
 		def each(path = nil)
 			return to_enum(:each, path) unless block_given?
 			
-			tree = path ? fetch_tree(path) : @tree
-			
-			tree.each_blob do |entry|
-				yield entry[:name], @repository.read(entry[:oid])
+			if tree = path ? fetch_tree(path) : @tree
+				tree.each_blob do |entry|
+					yield entry[:name], @repository.read(entry[:oid])
+				end
 			end
 		end
 		
@@ -61,6 +61,8 @@ module Relaxo
 			entry = @tree.path(path)
 			
 			Rugged::Tree.new(@repository, entry[:oid])
+		rescue Rugged::TreeError
+			return nil
 		end
 	end
 end
