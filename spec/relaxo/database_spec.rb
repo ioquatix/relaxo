@@ -29,8 +29,8 @@ RSpec.describe Relaxo::Database do
 			dataset.write(document_path, oid)
 		end
 		
-		database.commit(message: "Remove test document") do |dataset|
-			dataset.remove(document_path)
+		database.commit(message: "Delete test document") do |dataset|
+			dataset.delete(document_path)
 		end
 		
 		database.current do |dataset|

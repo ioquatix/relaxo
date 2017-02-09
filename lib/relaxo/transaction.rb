@@ -51,7 +51,7 @@ module Relaxo
 		
 		alias []= write
 		
-		def remove(path)
+		def delete(path)
 			@index.remove(path)
 		end
 		
