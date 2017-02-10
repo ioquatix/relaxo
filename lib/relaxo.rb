@@ -23,7 +23,7 @@ require 'relaxo/database'
 require 'pry'
 
 module Relaxo
-	def self.connect(path, metadata = nil)
+	def self.connect(path, metadata = {})
 		unless File.exist?(path)
 			Rugged::Repository.init_at(path, true)
 		end
