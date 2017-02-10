@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require 'rugged'
+require 'logger'
 
 require_relative 'dataset'
 require_relative 'transaction'
@@ -28,6 +29,8 @@ module Relaxo
 		def initialize(path, metadata = {})
 			@path = path
 			@metadata = metadata
+			
+			@logger = metadata[:logger] || Logger.new($stderr, level: Logger::INFO)
 			
 			@repository = repository || Rugged::Repository.new(path)
 		end
@@ -46,14 +49,16 @@ module Relaxo
 		
 		# During the execution of the block, changes don't get stored immediately, so reading from the dataset (from outside the block) will continue to return the values that were stored in the configuration when the transaction was started.
 		def commit(**options)
-			catch(:abort) do
-				begin
-					dataset = Transaction.new(@repository, current_tree)
-				
-					yield dataset
-				end while dataset.conflicts?
-				
-				dataset.commit!(**options)
+			track_time(options[:message]) do
+				catch(:abort) do
+					begin
+						dataset = Transaction.new(@repository, current_tree)
+					
+						yield dataset
+					end while dataset.conflicts?
+					
+					dataset.commit!(**options)
+				end
 			end
 		end
 		
@@ -71,6 +76,17 @@ module Relaxo
 		end
 		
 		private
+		
+		def track_time(message)
+			start_time = Time.now
+			
+			yield
+		ensure
+			end_time = Time.now
+			elapsed_time = end_time - start_time
+			
+			@logger.debug("time") {"#{message.inspect}: %0.3fs" % elapsed_time}
+		end
 		
 		def current_tree
 			if head = @repository.head
