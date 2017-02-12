@@ -84,6 +84,24 @@ Relaxo is designed to scale to the hundreds of thousands of documents. It's desi
 
 Because it maintains a full history of all changes, the repository would continue to grow over time by default, but there are mechanisms to deal with that.
 
+#### Performance
+
+Relaxo can do anywhere from 1000-10,000 inserts per second depending on how you structure the workload.
+
+	Relaxo Performance
+	Warming up --------------------------------------
+	              single   129.000  i/100ms
+	Calculating -------------------------------------
+	              single      6.224k (±14.7%) i/s -    114.036k in  20.000025s
+	  single transaction should be fast
+	Warming up --------------------------------------
+	            multiple   152.000  i/100ms
+	Calculating -------------------------------------
+	            multiple      1.452k (±15.2%) i/s -     28.120k in  20.101831s
+	  multiple transactions should be fast
+
+Reading data is lighting fast as it's loaded directly from disk and cached.
+
 ### Loading Data
 
 As Relaxo is unapologetically based on git, you can use git directly with a non-bare working directory to add any files you like. You can even point Relaxo at an existing git repository.
