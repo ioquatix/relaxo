@@ -7,8 +7,6 @@ RSpec.describe "Relaxo Performance" do
 	let(:database_path) {File.join(__dir__, 'test')}
 	let(:database) {Relaxo.connect(database_path)}
 	
-	let(:prefix) {"records"}
-	
 	if defined? Benchmark
 		def benchmark(name = nil)
 			Benchmark.ips do |benchmark|
@@ -61,7 +59,7 @@ RSpec.describe "Relaxo Performance" do
 			database.commit(message: "Some Documents") do |dataset|
 				i.times do |i|
 					object = dataset.append("good-#{i}")
-					dataset.write("#{prefix}/#{i}", object)
+					dataset.write("#{i%100}/#{i}", object)
 				end
 			end
 		end
@@ -72,7 +70,7 @@ RSpec.describe "Relaxo Performance" do
 			i.times do |i|
 				database.commit(message: "Some Documents") do |dataset|
 					object = dataset.append("good-#{i}")
-					dataset.write("#{prefix}/#{i}", object)
+					dataset.write("#{i%100}/#{i}", object)
 				end
 			end
 		end
