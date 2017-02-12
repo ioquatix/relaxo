@@ -30,16 +30,19 @@ Connect to a local database and manipulate some documents.
 	DB = Relaxo.connect("test")
 	
 	DB.commit(message: "Create test data") do |dataset|
-		dataset.write("doc1.json", MessagePack.dump({bob: 'dole'}))
+		object = dataset.append(MessagePack.dump({bob: 'dole'}))
+		dataset.write("doc1.json", object)
 	end
 	
 	DB.commit(message: "Update test data") do |dataset|
-		doc = MessagePack.load dataset.read('doc1.json')
+		doc = MessagePack.load dataset.read('doc1.json').data
 		doc[:foo] = 'bar'
-		dataset.write("doc2.json", MessagePack.dump(doc))
+		
+		object = dataset.append(MessagePack.dump(doc))
+		dataset.write("doc2.json", object)
 	end
 	
-	doc = MessagePack.load DB.current['doc2.json']
+	doc = MessagePack.load DB.current['doc2.json'].data
 	puts doc
 	# => {"bob"=>"dole", "foo"=>"bar"}
 
@@ -47,41 +50,39 @@ Connect to a local database and manipulate some documents.
 
 Relaxo uses the git persistent data structure for storing documents. This data structure exposes a file-system like interface, which stores any kind of data. This means that you are free to use JSON, or BSON, or MessagePack, or JPEG, or XML, or any combination of those.
 
-The main function for reading is, `data = Dataset#read(path)`, and the main function for writing is `Transaction#write(path, data)`.
+Relaxo has a transactional model for both reading and writing.
 
-Documents are stored using a path, which might be an ID but doesn't need to be. Having lots of documents at the top level is inefficient as the persistent data structure in git would need to work harder, so it's best to store things logically using a path that reflects the natural organisation of what you are dealing with, and if you have a lot of documents, storing them using a prefix subdirectory would be an even better idea.
+#### Reading Files
 
-	require 'relaxo'
-	require 'securerandom'
-	require 'json'
+	path = "path/to/document"
 	
-	DB = Relaxo.connect("test")
-	animals = ['Neko-san', 'Wan-chan', 'Nezu-chan', 'Chicken-san']
+	DB.current do |dataset|
+		object = dataset.read(path)
+		
+		puts "The object id: #{object.oid}"
+		puts "The object data size: #{object.size}"
+		puts "The object data: #{object.data.inspect}"
+	end
+
+#### Writing Files
+
+	path = "path/to/document"
+	data = MessagePack.dump(document)
 	
-	# All writes must occur within a commit:
-	DB.commit(message: "Add animals") do |dataset|
-		animals.each do |animal|
-			dataset.write("animals/#{SecureRandom.uuid}", JSON.dump({name: animal}))
-		end
+	DB.commit(message: "Adding document") do |changeset|
+		object = changeset.append(data)
+		changeset.write(path, object)
 	end
 	
-	DB.current.each('animals').to_a
-	# => [["314874ab-7780-4a46-93e3-67743576ce0b", "{\"name\":\"Nezu-chan\"}"],
- ["36e125e8-fb02-47f5-b829-496c9b296031", "{\"name\":\"Chicken-san\"}"],
- ["ca752b5d-a931-4b58-b384-4fe4f84baf1b", "{\"name\":\"Wan-chan\"}"],
- ["fca923b7-7a42-4812-b0a7-e58508bedbfc", "{\"name\":\"Neko-san\"}"]]
-
-To abort the transaction, either raise an exception or call `transaction.abort!` which is equivalent to `throw :abort`. The code in the transaction block may be run multiple times if conflicts with the data store are detected when the changes is persisted.
-
 ### Datasets and Transactions
 
-`Dataset`s and `Transaction`s are important concepts. Relaxo doesn't allow arbitrary access to data, but instead exposes the git persistent model for both reading and writing. The implications of this are that when reading or writing, you always see a consistent snapshot of the data store.
+`Dataset`s and `Changeset`s are important concepts. Relaxo doesn't allow arbitrary access to data, but instead exposes the git persistent model for both reading and writing. The implications of this are that when reading or writing, you always see a consistent snapshot of the data store.
 
 ### Suitability
 
 Relaxo is designed to scale to the hundreds of thousands of documents. It's designed around the git persistent data store, and therefore has some performance and concurrency limitations due to the underlying implementation.
 
-Because it maintains a full history of all changes, the repository would continue to grow over time by default.
+Because it maintains a full history of all changes, the repository would continue to grow over time by default, but there are mechanisms to deal with that.
 
 ### Loading Data
 
