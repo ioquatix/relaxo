@@ -55,9 +55,9 @@ RSpec.describe "Relaxo Performance" do
 	end
 	
 	it "single transaction should be fast" do
-		benchmark("single") do |i|
+		benchmark("single") do |iterations|
 			database.commit(message: "Some Documents") do |dataset|
-				i.times do |i|
+				iterations.times do |i|
 					object = dataset.append("good-#{i}")
 					dataset.write("#{i%100}/#{i}", object)
 				end
@@ -66,8 +66,8 @@ RSpec.describe "Relaxo Performance" do
 	end
 	
 	it "multiple transactions should be fast" do
-		benchmark("multiple") do |i|
-			i.times do |i|
+		benchmark("multiple") do |iterations|
+			iterations.times do |i|
 				database.commit(message: "Some Documents") do |dataset|
 					object = dataset.append("good-#{i}")
 					dataset.write("#{i%100}/#{i}", object)
