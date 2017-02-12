@@ -32,7 +32,7 @@ module Relaxo
 			@path = path
 			@metadata = metadata
 			
-			@logger = metadata[:logger] || Logger.new($stderr, level: Logger::INFO)
+			@logger = metadata[:logger] || Logger.new($stderr).tap{|logger| logger.level = Logger::INFO}
 			
 			@repository = repository || Rugged::Repository.new(path)
 		end
