@@ -28,6 +28,6 @@ module Relaxo
 			Rugged::Repository.init_at(path, true)
 		end
 		
-		database = Database.new(path, metadata)
+		return Database.new(path, metadata)
 	end
 end

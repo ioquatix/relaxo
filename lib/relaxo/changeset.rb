@@ -28,6 +28,7 @@ module Relaxo
 			super
 			
 			@changes = {}
+			@directories = {}
 		end
 		
 		def read(path)
@@ -47,38 +48,34 @@ module Relaxo
 		end
 		
 		def write(path, object, mode = 0100644)
-			@changes[path] = {
+			root, _, name = path.rpartition('/')
+			
+			entry = @changes[path] = {
 				action: :upsert,
 				oid: object.oid,
 				object: object,
 				filemode: mode,
 				path: path,
+				root: root,
+				name: name,
 			}
+			
+			directory(root).insert(entry)
 		end
 		
 		alias []= write
 		
 		def delete(path)
-			@changes[path] = {
+			root, _, name = path.rpartition('/')
+			
+			entry = @changes[path] = {
 				action: :remove,
 				path: path,
+				root: root,
+				name: name,
 			}
-		end
-		
-		def each(prefix = nil)
-			return to_enum(:each, prefix) unless block_given?
 			
-			super do |name, object|
-				path = [prefix, name].compact.join('/')
-				
-				if update = @changes[path]
-					if update[:action] != :remove
-						yield name, update.object
-					end
-				else
-					yield name, object
-				end
-			end
+			directory(path).delete(entry)
 		end
 		
 		def parent

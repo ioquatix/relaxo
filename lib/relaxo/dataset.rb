@@ -20,20 +20,20 @@
 
 require 'rugged'
 
+require_relative 'directory'
+
 module Relaxo
 	class Dataset
 		def initialize(repository, tree)
 			@repository = repository
 			@tree = tree
-		end
-		
-		def lookup(oid)
-			@repository.read(oid)
+			
+			@directories = {}
 		end
 		
 		def read(path)
 			if entry = @tree.path(path) and entry[:type] == :blob and oid = entry[:oid]
-				lookup(oid)
+				@repository.read(oid)
 			end
 		rescue Rugged::TreeError
 			return nil
@@ -45,24 +45,16 @@ module Relaxo
 			read(path) != nil
 		end
 		
-		def each(path = nil)
+		def each(path = nil, &block)
 			return to_enum(:each, path) unless block_given?
 			
-			if tree = path ? fetch_tree(path) : @tree
-				tree.each_blob do |entry|
-					yield entry[:name], @repository.read(entry[:oid])
-				end
-			end
+			directory(path).each(&block)
 		end
 		
-		private
+		protected
 		
-		def fetch_tree(path)
-			entry = @tree.path(path)
-			
-			Rugged::Tree.new(@repository, entry[:oid])
-		rescue Rugged::TreeError
-			return nil
+		def directory(path = nil)
+			@directories[path] ||= Directory.new(@repository, @tree, path)
 		end
 	end
 end

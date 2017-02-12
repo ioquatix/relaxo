@@ -60,10 +60,6 @@ module Relaxo
 			end
 		end
 		
-		def empty?
-			@repository.empty?
-		end
-		
 		# Efficient point-in-time read-only access.
 		def current
 			dataset = Dataset.new(@repository, current_tree)
