@@ -25,6 +25,8 @@ require_relative 'dataset'
 require_relative 'changeset'
 
 module Relaxo
+	HEAD = 'HEAD'.freeze
+	
 	class Database
 		def initialize(path, metadata = {})
 			@path = path
@@ -52,17 +54,21 @@ module Relaxo
 			track_time(options[:message]) do
 				catch(:abort) do
 					begin
-						changeset = Changeset.new(@repository, current_tree)
-					
+						parent, tree = latest_commit
+						
+						changeset = Changeset.new(@repository, tree)
+						
 						yield changeset
-					end until changeset.commit(**options)
+					end until apply(parent, changeset, **options)
 				end
 			end
 		end
 		
 		# Efficient point-in-time read-only access.
 		def current
-			dataset = Dataset.new(@repository, current_tree)
+			_, tree = latest_commit
+			
+			dataset = Dataset.new(@repository, tree)
 			
 			yield dataset if block_given?
 			
@@ -82,14 +88,28 @@ module Relaxo
 			@logger.debug("time") {"#{message.inspect}: %0.3fs" % elapsed_time}
 		end
 		
-		def current_tree
+		def apply(parent, changeset, **options)
+			return true unless changeset.changes?
+			
+			options[:tree] = changeset.write_tree
+			options[:parents] ||= [parent]
+			options[:update_ref] ||= HEAD
+			
+			begin
+				Rugged::Commit.create(@repository, options)
+			rescue Rugged::ObjectError
+				return false
+			end
+		end
+		
+		def latest_commit
 			if head = @repository.head
-				head.target.tree
+				return head.target, head.target.tree
 			else
-				empty_tree
+				return nil, empty_tree
 			end
 		rescue Rugged::ReferenceError
-			empty_tree
+			return nil, empty_tree
 		end
 		
 		def empty_tree

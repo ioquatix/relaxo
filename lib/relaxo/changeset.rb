@@ -21,14 +21,19 @@
 require_relative 'dataset'
 
 module Relaxo
-	HEAD = 'HEAD'.freeze
-	
 	class Changeset < Dataset
 		def initialize(repository, tree)
 			super
 			
 			@changes = {}
 			@directories = {}
+		end
+		
+		attr :ref
+		attr :changes
+		
+		def changes?
+			@changes.any?
 		end
 		
 		def read(path)
@@ -43,7 +48,6 @@ module Relaxo
 		
 		def append(data, type = :blob)
 			oid = @repository.write(data, type)
-			
 			return Rugged::Object.new(@repository, oid)
 		end
 		
@@ -82,28 +86,12 @@ module Relaxo
 			return entry
 		end
 		
-		def parent
-			@repository.empty? ? nil : @repository.head.target
-		end
-		
-		def conflicts?
-			false
-		end
-		
 		def abort!
 			throw :abort
 		end
 		
-		def commit(**options)
-			return true if @changes.empty?
-			
-			commit_parent = self.parent
-			
-			options[:tree] = @tree.update(@changes.values)
-			options[:parents] ||= [commit_parent]
-			options[:update_ref] ||= HEAD
-			
-			Rugged::Commit.create(@repository, options)
+		def write_tree
+			@tree.update(@changes.values)
 		end
 	end
 end
