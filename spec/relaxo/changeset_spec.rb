@@ -13,6 +13,8 @@ RSpec.describe Relaxo::Changeset do
 				dataset.write("#{prefix}/extra-#{i}", object)
 			end
 			
+			expect(dataset.exist?("#{prefix}/extra-0")).to be_truthy
+			
 			records = dataset.each(prefix).to_a
 		end
 		
