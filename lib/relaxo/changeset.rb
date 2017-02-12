@@ -21,22 +21,23 @@
 require_relative 'dataset'
 
 module Relaxo
-	class Transaction < Dataset
-		HEAD = 'HEAD'.freeze
-
+	HEAD = 'HEAD'.freeze
+	
+	class Changeset < Dataset
 		def initialize(repository, tree)
 			super
 			
-			@index = Rugged::Index.new
-			@index.read_tree(@tree)
+			@changes = {}
 		end
 		
 		def read(path)
-			if entry = @index[path] and oid = entry[:oid]
-				lookup(oid)
+			if update = @changes[path]
+				if update[:action] != :remove
+					lookup(update[:oid])
+				end
 			end
-		rescue Rugged::TreeError
-			return nil
+			
+			super
 		end
 		
 		def append(data, type = :blob)
@@ -46,58 +47,59 @@ module Relaxo
 		end
 		
 		def write(path, object, mode = 0100644)
-			@index.add(path: path, oid: object.oid, mode: mode)
+			@changes[path] = {
+				action: :upsert,
+				oid: object.oid,
+				object: object,
+				filemode: mode,
+				path: path,
+			}
 		end
 		
 		alias []= write
 		
 		def delete(path)
-			@index.remove(path)
+			@changes[path] = {
+				action: :remove,
+				path: path,
+			}
 		end
 		
-		def each(path = nil)
-			return to_enum(:each, path) unless block_given?
+		def each(prefix = nil)
+			return to_enum(:each, prefix) unless block_given?
 			
-			if path
-				# This huge hack can be removed once the git_index_find_prefix is implemented.
-				found = false
-				@index.each do |entry|
-					path = entry[:path]
-					
-					if path.start_with? pattern
-						found = true
-					else
-						break if found
+			super do |name, object|
+				path = [prefix, name].compact.join('/')
+				
+				if update = @changes[path]
+					if update[:action] != :remove
+						yield name, update.object
 					end
-					
-					if found and entry[:type] == :blob
-						yield @repository.read(entry[:oid]).data
-					end
-				end
-			else
-				@index.each do |entry|
-					if entry[:type] == :blob
-						yield @repository.read(entry[:oid]).data
-					end
+				else
+					yield name, object
 				end
 			end
 		end
 		
-		def parents
-			@repository.empty? ? [] : [@repository.head.target].compact
+		def parent
+			@repository.empty? ? nil : @repository.head.target
 		end
 		
 		def conflicts?
-			@index.conflicts?
+			false
 		end
 		
 		def abort!
 			throw :abort
 		end
 		
-		def commit!(**options)
-			options[:tree] = @index.write_tree(@repository)
-			options[:parents] ||= self.parents
+		def commit(**options)
+			return true if @changes.empty?
+			
+			commit_parent = self.parent
+			
+			options[:tree] = @tree.update(@changes.values)
+			options[:parents] ||= [commit_parent]
 			options[:update_ref] ||= HEAD
 			
 			Rugged::Commit.create(@repository, options)

@@ -22,7 +22,7 @@ require 'rugged'
 require 'logger'
 
 require_relative 'dataset'
-require_relative 'transaction'
+require_relative 'changeset'
 
 module Relaxo
 	class Database
@@ -52,12 +52,10 @@ module Relaxo
 			track_time(options[:message]) do
 				catch(:abort) do
 					begin
-						dataset = Transaction.new(@repository, current_tree)
+						changeset = Changeset.new(@repository, current_tree)
 					
-						yield dataset
-					end while dataset.conflicts?
-					
-					dataset.commit!(**options)
+						yield changeset
+					end until changeset.commit(**options)
 				end
 			end
 		end

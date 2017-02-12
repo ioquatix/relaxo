@@ -4,8 +4,7 @@ require 'relaxo'
 RSpec.describe Relaxo::Database do
 	let(:database_path) {File.join(__dir__, 'test')}
 	
-	let(:author) {{:email => "test@example.com", :name => 'Tiesto', :time => Time.now}}
-	let(:database) {Relaxo.connect(database_path, author: author)}
+	let(:database) {Relaxo.connect(database_path)}
 	
 	let(:document_path) {'test/document.json'}
 	let(:sample_json) {'[1, 2, 3]'}
