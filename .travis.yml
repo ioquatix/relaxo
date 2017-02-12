@@ -10,9 +10,7 @@ rvm:
   - 2.3.1
   - 2.4.0
   - rbx-2
-services:
-  - couchdb
-env: COVERAGE=true
+env: COVERAGE=true BENCHMARK=true
 matrix:
   allow_failures:
     - rvm: ruby-head
