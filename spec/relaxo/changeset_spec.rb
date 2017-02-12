@@ -27,6 +27,8 @@ RSpec.describe Relaxo::Changeset do
 				dataset.delete("#{prefix}/#{i}")
 			end
 			
+			expect(dataset.exist?("#{prefix}/0")).to be_falsey
+			
 			records = dataset.each(prefix).to_a
 		end
 		

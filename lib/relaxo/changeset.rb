@@ -41,9 +41,9 @@ module Relaxo
 				if update[:action] != :remove
 					@repository.read(update[:oid])
 				end
+			else
+				super
 			end
-			
-			super
 		end
 		
 		def append(data, type = :blob)
