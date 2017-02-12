@@ -56,6 +56,7 @@ module Relaxo
 			
 			@changes[name] = entry
 			
+			# Blow away the cache:
 			@entries = nil
 		end
 		
@@ -64,6 +65,7 @@ module Relaxo
 			
 			@changes[name] = nil
 			
+			# Blow away the cache:
 			@entries = nil
 		end
 		
@@ -79,8 +81,7 @@ module Relaxo
 		
 		# Load the entries from the tree, applying any changes.
 		def load_entries!
-			entries = @changes
-			@changes = {}
+			entries = @changes.dup
 			
 			if tree = fetch_tree
 				tree.each_blob do |entry|

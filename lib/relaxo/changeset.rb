@@ -34,7 +34,7 @@ module Relaxo
 		def read(path)
 			if update = @changes[path]
 				if update[:action] != :remove
-					lookup(update[:oid])
+					@repository.read(update[:oid])
 				end
 			end
 			
@@ -61,6 +61,8 @@ module Relaxo
 			}
 			
 			directory(root).insert(entry)
+			
+			return entry
 		end
 		
 		alias []= write
@@ -75,7 +77,9 @@ module Relaxo
 				name: name,
 			}
 			
-			directory(path).delete(entry)
+			directory(root).delete(entry)
+			
+			return entry
 		end
 		
 		def parent
