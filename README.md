@@ -106,6 +106,17 @@ Reading data is lighting fast as it's loaded directly from disk and cached.
 
 As Relaxo is unapologetically based on git, you can use git directly with a non-bare working directory to add any files you like. You can even point Relaxo at an existing git repository.
 
+### Durability
+
+Relaxo is based on `libgit2` and asserts that it is a transactional database. We base this assertion on:
+
+- All writes into the object store using `libgit2` are atomic and synchronized to disk.
+- All updates to refs are atomic and synchronized to disk.
+
+Provided these two invariants are maintained, the operation of Relaxo will be safe.
+
+The default mode of `libgit2` is not to call `fsync`. Therefore, if you have power loss, and your storage does not have a battery backed cache, you may experience corruption of the most recent commit. However, [`libgit2` is adding `fsync`](https://github.com/libgit2/libgit2/issues/41230) which will guarantee durability.
+
 ## Contributing
 
 1. Fork it
