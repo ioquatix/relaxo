@@ -113,7 +113,7 @@ Relaxo is based on `libgit2` and asserts that it is a transactional database. We
 - All writes into the object store using `libgit2` are atomic and synchronized to disk.
 - All updates to refs are atomic and synchronized to disk.
 
-Provided these two invariants are maintained, the operation of Relaxo will be safe.
+Provided these two invariants are maintained, the operation of Relaxo will be safe, even if there are unexpected interruptions to the program.
 
 The durability guarantees of Relaxo depend on [`libgit2` calling `fsync`](https://github.com/libgit2/libgit2/pull/4030), and [this being respected by the underlying hardware](http://www.evanjones.ca/intel-ssd-durability.html). Otherwise, durability cannot be guaranteed.
 
