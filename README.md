@@ -115,7 +115,7 @@ Relaxo is based on `libgit2` and asserts that it is a transactional database. We
 
 Provided these two invariants are maintained, the operation of Relaxo will be safe.
 
-The default mode of `libgit2` is not to call `fsync`. Therefore, if you have power loss, and your storage does not have a battery backed cache, you may experience corruption of the most recent commit. However, [`libgit2` is adding `fsync`](https://github.com/libgit2/libgit2/issues/41230) as a configurable option which will guarantee durability, at the cost of performance.
+The default mode of `libgit2` is not to call `fsync`. Therefore, if you have power loss, and your storage does not have a battery backed cache, you may experience corruption of the most recent commit. However, [`libgit2` is adding `fsync`](https://github.com/libgit2/libgit2/pull/4030) as a configurable option which will guarantee durability, at the cost of performance.
 
 ## Contributing
 
