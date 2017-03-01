@@ -84,4 +84,20 @@ RSpec.describe Relaxo::Database do
 			expect(dataset.each('test').count).to be == 10
 		end
 	end
+	
+	it "can enumerate commit history of a document" do
+		10.times do |id|
+			database.commit(message: "revising the document #{id}") do |changeset|
+				oid = changeset.append("revision \##{id} of this document")
+				changeset.write('test/doot.txt', oid)
+			end
+		end
+		
+		database.commit(message: "unrelated commit") do |changeset|
+			oid = changeset.append("unrelated document")
+			changeset.write('test/unrelated.txt', oid)
+		end
+		
+		expect(database.history('test/doot.txt').count).to be == 10
+	end
 end

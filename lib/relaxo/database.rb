@@ -75,6 +75,34 @@ module Relaxo
 			return dataset
 		end
 		
+		# revision history of given object
+		def history(path)
+			head, _ = latest_commit
+			
+			walker = Rugged::Walker.new(@repository) # Sounds like 'Walker, Texas Ranger'...
+			walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
+			walker.push(head.oid)
+			
+			commits = []
+			
+			old_oid = nil
+			
+			walker.each do |commit|
+				dataset = Dataset.new(@repository, commit.tree)
+				oid = dataset.read(path).oid
+				
+				if oid != old_oid # modified
+					yield commit if block_given?
+					commits << commit
+					old_oid = oid
+				end
+				
+				break if oid.nil? && !old_oid.nil? # deleted or moved
+			end
+			
+			return commits
+		end
+		
 		private
 		
 		def track_time(message)
