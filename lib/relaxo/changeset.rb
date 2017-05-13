@@ -49,7 +49,7 @@ module Relaxo
 		def append(data, type = :blob)
 			oid = @repository.write(data, type)
 			
-			return Rugged::Object.new(@repository, oid)
+			return @repository.read(oid)
 		end
 		
 		def write(path, object, mode = 0100644)
