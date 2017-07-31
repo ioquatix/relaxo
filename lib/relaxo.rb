@@ -25,7 +25,11 @@ require 'pry'
 module Relaxo
 	def self.connect(path, metadata = {})
 		unless File.exist?(path)
-			Rugged::Repository.init_at(path, true)
+			repository = Rugged::Repository.init_at(path, true)
+			
+			if metadata[:sync] || ENV['RELAXO_SYNC']
+				repository.config['core.fsyncObjectFiles'] = true
+			end
 		end
 		
 		return Database.new(path, metadata)
