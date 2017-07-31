@@ -35,6 +35,8 @@ module Relaxo
 			@logger = metadata[:logger] || Logger.new($stderr).tap{|logger| logger.level = Logger::INFO}
 			
 			@repository = repository || Rugged::Repository.new(path)
+			
+			# @repository.config['core.fsyncObjectFiles'] = true
 		end
 		
 		attr :path
