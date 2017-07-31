@@ -22,9 +22,16 @@ require 'rugged'
 
 module Relaxo
 	class Directory
-		def initialize(repository, tree, path)
+		def initialize(repository, root_tree, path)
 			@repository = repository
-			@tree = tree
+			
+			# The root tree, which path is relative to:
+			@root_tree = root_tree
+			
+			# The entry and tree for the directory itself:
+			@entry = nil
+			@tree = nil
+			
 			@path = path
 			
 			@entries = nil
@@ -51,6 +58,21 @@ module Relaxo
 			end
 		end
 		
+		def each_entry(&block)
+			return to_enum(:each_entry) unless block_given?
+			
+			entries.each(&block)
+		end
+		
+		# Iterate over the subtrees in this tree.
+		def each_tree(&block)
+			return to_enum(:each_tree) unless block_given?
+			
+			if tree = fetch_tree
+				tree.each_tree(&block)
+			end
+		end
+		
 		def insert(entry)
 			_, _, name = entry[:name].rpartition('/')
 			
@@ -71,10 +93,14 @@ module Relaxo
 		
 		private
 		
-		def fetch_tree(path = @path)
-			entry = @tree.path(path)
-			
-			Rugged::Tree.new(@repository, entry[:oid])
+		# Look up the entry for the given directory `@path`:
+		def fetch_entry
+			@entry ||= @root_tree.path(@path)
+		end
+		
+		# Load the directory tree for the given `@path`:
+		def fetch_tree
+			@tree ||= Rugged::Tree.new(@repository, fetch_entry[:oid])
 		rescue Rugged::TreeError
 			return nil
 		end
