@@ -48,12 +48,14 @@ module Relaxo
 		def each(path = nil, &block)
 			return to_enum(:each, path) unless block_given?
 			
-			directory(path).each(&block)
+			directory = fetch_directory(path)
+			
+			directory.each(&block)
 		end
 		
 		protected
 		
-		def directory(path = nil)
+		def fetch_directory(path = nil)
 			@directories[path] ||= Directory.new(@repository, @tree, path)
 		end
 	end

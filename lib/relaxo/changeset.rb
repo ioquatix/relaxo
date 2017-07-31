@@ -65,7 +65,7 @@ module Relaxo
 				name: name,
 			}
 			
-			directory(root).insert(entry)
+			fetch_directory(root).insert(entry)
 			
 			return entry
 		end
@@ -82,7 +82,7 @@ module Relaxo
 				name: name,
 			}
 			
-			directory(root).delete(entry)
+			fetch_directory(root).delete(entry)
 			
 			return entry
 		end
