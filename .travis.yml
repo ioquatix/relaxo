@@ -1,17 +1,15 @@
 language: ruby
 sudo: false
-before_install:
-  # For testing purposes:
-  - git config --global user.name "Samuel Williams"
-  - git config --global user.email "samuel@oriontransfer.net"
+dist: trusty
+cache: bundler
 rvm:
-  - 2.1.8
-  - 2.2.4
-  - 2.3.1
-  - 2.4.0
-  - rbx-2
-env: COVERAGE=true BENCHMARK=true
+  - 2.1
+  - 2.2
+  - 2.3
+  - 2.4
+  - ruby-head
+  - jruby-head
 matrix:
   allow_failures:
-    - rvm: ruby-head
-    - rvm: "rbx-2"
+    - rvm: "ruby-head"
+    - rvm: "jruby-head"
