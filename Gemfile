@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in relaxo.gemspec
 gemspec
 
-gem 'rugged'# , git: 'https://github.com/libgit2/rugged.git', submodules: true
+gem 'rugged', git: 'https://github.com/ioquatix/rugged.git', submodules: true
 
 group :development do
 	gem "pry"
