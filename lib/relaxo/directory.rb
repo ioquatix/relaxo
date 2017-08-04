@@ -64,15 +64,6 @@ module Relaxo
 			entries.each(&block)
 		end
 		
-		# Iterate over the subtrees in this tree.
-		def each_tree(&block)
-			return to_enum(:each_tree) unless block_given?
-			
-			if tree = fetch_tree
-				tree.each_tree(&block)
-			end
-		end
-		
 		def insert(entry)
 			_, _, name = entry[:name].rpartition('/')
 			
