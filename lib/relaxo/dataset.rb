@@ -41,11 +41,21 @@ module Relaxo
 		
 		alias [] read
 		
-		def exist?(path)
-			read(path) != nil
+		def file?
+			read(path)
 		end
 		
-		def each(path = nil, &block)
+		def exist?(path)
+			read(path) or directory?(path)
+		end
+		
+		def directory?(path)
+			@directories.key?(path) or @tree.path(path)[:type] == :tree
+		rescue Rugged::TreeError
+			return false
+		end
+		
+		def each(path = '', &block)
 			return to_enum(:each, path) unless block_given?
 			
 			directory = fetch_directory(path)
@@ -55,7 +65,7 @@ module Relaxo
 		
 		protected
 		
-		def fetch_directory(path = nil)
+		def fetch_directory(path)
 			@directories[path] ||= Directory.new(@repository, @tree, path)
 		end
 	end
