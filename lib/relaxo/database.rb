@@ -50,7 +50,10 @@ module Relaxo
 		end
 		
 		# During the execution of the block, changes don't get stored immediately, so reading from the dataset (from outside the block) will continue to return the values that were stored in the configuration when the transaction was started.
+		# @return the result of the block.
 		def commit(**options)
+			result = nil
+			
 			track_time(options[:message]) do
 				catch(:abort) do
 					begin
@@ -58,10 +61,12 @@ module Relaxo
 						
 						changeset = Changeset.new(@repository, tree)
 						
-						yield changeset
+						result = yield changeset
 					end until apply(parent, changeset, **options)
 				end
 			end
+			
+			return result
 		end
 		
 		# Efficient point-in-time read-only access.

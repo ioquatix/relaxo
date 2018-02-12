@@ -22,16 +22,14 @@ RSpec.describe Relaxo::Changeset do
 	end
 	
 	it "should enumerate all documents excluding deletes" do
-		records = []
-		
-		database.commit(message: "Testing Enumeration") do |dataset|
+		records = database.commit(message: "Testing Enumeration") do |dataset|
 			5.times do |i|
 				dataset.delete("#{prefix}/#{i}")
 			end
 			
 			expect(dataset.exist?("#{prefix}/0")).to be_falsey
 			
-			records = dataset.each(prefix).to_a
+			dataset.each(prefix).to_a
 		end
 		
 		expect(records.count).to be 15
