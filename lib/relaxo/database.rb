@@ -41,6 +41,11 @@ module Relaxo
 		attr :metadata
 		attr :repository
 		
+		# Completely clear out the database.
+		def clear!
+			@repository.references.delete(@repository.head)
+		end
+		
 		def empty?
 			@repository.empty?
 		end

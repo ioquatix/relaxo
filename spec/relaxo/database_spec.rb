@@ -24,6 +24,19 @@ RSpec.describe Relaxo::Database do
 		expect(database).to_not be_empty
 	end
 	
+	it "should be able to clear the database" do
+		database.commit(message: "Create test document") do |dataset|
+			oid = dataset.append(sample_json)
+			dataset.write(document_path, oid)
+		end
+		
+		expect(database).to_not be_empty
+		
+		database.clear!
+		
+		expect(database).to be_empty
+	end
+	
 	it "should have metadata" do
 		expect(database[:test_key]).to be == "test_value"
 	end
