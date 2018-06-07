@@ -28,13 +28,15 @@ module Relaxo
 	HEAD = 'HEAD'.freeze
 	
 	class Database
-		def initialize(path, metadata = {})
+		def initialize(path, branch, metadata = {})
 			@path = path
 			@metadata = metadata
 			
 			@logger = metadata[:logger] || Logger.new($stderr).tap{|logger| logger.level = Logger::INFO}
 			
 			@repository = Rugged::Repository.new(path)
+			
+			@branch = branch
 		end
 		
 		attr :path
@@ -131,7 +133,7 @@ module Relaxo
 			
 			options[:tree] = changeset.write_tree
 			options[:parents] ||= [parent]
-			options[:update_ref] ||= HEAD
+			options[:update_ref] ||= "refs/heads/#{@branch}"
 			
 			begin
 				Rugged::Commit.create(@repository, options)
@@ -141,13 +143,11 @@ module Relaxo
 		end
 		
 		def latest_commit
-			if head = @repository.head
+			if head = @repository.branches[@branch]
 				return head.target, head.target.tree
 			else
 				return nil, empty_tree
 			end
-		rescue Rugged::ReferenceError
-			return nil, empty_tree
 		end
 		
 		def empty_tree
