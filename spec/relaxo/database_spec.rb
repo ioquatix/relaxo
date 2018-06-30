@@ -15,6 +15,12 @@ RSpec.describe Relaxo::Database do
 		expect(database).to be_empty
 	end
 	
+	it "can clear database" do
+		expect do
+			database.clear!
+		end.to_not raise_error
+	end
+	
 	it "should not be empty with one document" do
 		database.commit(message: "Create test document") do |dataset|
 			oid = dataset.append(sample_json)

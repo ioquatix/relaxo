@@ -45,7 +45,9 @@ module Relaxo
 		
 		# Completely clear out the database.
 		def clear!
-			@repository.references.delete(@repository.head)
+			if head = @repository.branches[@branch]
+				@repository.references.delete(head)
+			end
 		end
 		
 		def empty?
