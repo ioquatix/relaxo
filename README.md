@@ -31,18 +31,18 @@ Connect to a local database and manipulate some documents.
 	
 	DB.commit(message: "Create test data") do |dataset|
 		object = dataset.append(MessagePack.dump({bob: 'dole'}))
-		dataset.write("doc1.json", object)
+		dataset.write("doc1.msgpack", object)
 	end
 	
 	DB.commit(message: "Update test data") do |dataset|
-		doc = MessagePack.load dataset.read('doc1.json').data
+		doc = MessagePack.load dataset.read('doc1.msgpack').data
 		doc[:foo] = 'bar'
 		
 		object = dataset.append(MessagePack.dump(doc))
-		dataset.write("doc2.json", object)
+		dataset.write("doc2.msgpack", object)
 	end
 	
-	doc = MessagePack.load DB.current['doc2.json'].data
+	doc = MessagePack.load DB.current['doc2.msgpack'].data
 	puts doc
 	# => {"bob"=>"dole", "foo"=>"bar"}
 
