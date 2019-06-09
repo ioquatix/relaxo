@@ -52,6 +52,17 @@ Relaxo uses the git persistent data structure for storing documents. This data s
 
 Relaxo has a transactional model for both reading and writing.
 
+#### Authors
+
+By default, Relaxo sets up the repository author using the login name and hostname of the current session. You can explicitly change this by modifying `database.config`. Additionally, you can set this per-commit:
+
+```ruby
+database.commit(message: "Testing Enumeration", author: {user: "Alice", email: "alice@localhost"}) do |dataset|
+	object = dataset.append("Hello World!")
+	dataset.write("hello.txt", object)
+end
+```
+
 #### Reading Files
 
 	path = "path/to/document"

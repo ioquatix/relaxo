@@ -34,4 +34,18 @@ RSpec.describe Relaxo::Changeset do
 		
 		expect(records.count).to be 15
 	end
+	
+	let(:author) do
+		{name: 'Testing McTestface', email: 'testing@testing.com'}
+	end
+	
+	it "can use specified author" do
+		database.commit(message: "Testing Enumeration", author: author) do |dataset|
+			object = dataset.append("Hello World!")
+			dataset.write("hello.txt", object)
+		end
+		
+		commit = database.head.target
+		expect(commit.author).to include(author)
+	end
 end

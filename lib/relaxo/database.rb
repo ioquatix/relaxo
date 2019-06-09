@@ -56,6 +56,10 @@ module Relaxo
 			@repository.empty?
 		end
 		
+		def head
+			@repository.branches[@branch]
+		end
+		
 		def [] key
 			@metadata[key]
 		end
@@ -147,7 +151,7 @@ module Relaxo
 		end
 		
 		def latest_commit
-			if head = @repository.branches[@branch]
+			if head = self.head
 				return head.target, head.target.tree
 			else
 				return nil, empty_tree
