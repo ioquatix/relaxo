@@ -20,7 +20,7 @@
 
 require 'relaxo/database'
 
-require 'pry'
+require 'etc'
 
 module Relaxo
 	MASTER = 'master'.freeze
@@ -36,6 +36,14 @@ module Relaxo
 		
 		branch ||= MASTER
 		
-		return Database.new(path, branch, metadata)
+		database = Database.new(path, branch, metadata)
+		
+		if config = database.config
+			unless config['user.name']
+				config['user.email'] = config['user.name'] = Etc.getlogin
+			end
+		end
+		
+		return database
 	end
 end

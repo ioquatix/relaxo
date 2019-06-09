@@ -39,6 +39,10 @@ module Relaxo
 			@branch = branch
 		end
 		
+		def config
+			@repository.config
+		end
+		
 		attr :path
 		attr :metadata
 		attr :repository

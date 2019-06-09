@@ -15,6 +15,13 @@ RSpec.describe Relaxo::Database do
 		expect(database).to be_empty
 	end
 	
+	it "prepares user details in config" do
+		expect(database.config).to include('user.name', 'user.email')
+		
+		puts database.config['user.name']
+		puts database.config['user.email']
+	end
+	
 	it "can clear database" do
 		expect do
 			database.clear!
