@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
 	spec.require_paths = ["lib"]
 	
 	spec.add_dependency "rugged"
+	spec.add_dependency "console"
 	
 	spec.add_development_dependency "covered"
 	spec.add_development_dependency "rspec", "~> 3.6"

@@ -19,8 +19,8 @@
 # THE SOFTWARE.
 
 require 'rugged'
-require 'logger'
 
+require_relative 'logger'
 require_relative 'dataset'
 require_relative 'changeset'
 
@@ -31,8 +31,6 @@ module Relaxo
 		def initialize(path, branch, metadata = {})
 			@path = path
 			@metadata = metadata
-			
-			@logger = metadata[:logger] || Logger.new($stderr).tap{|logger| logger.level = Logger::INFO}
 			
 			@repository = Rugged::Repository.new(path)
 			
@@ -131,7 +129,7 @@ module Relaxo
 			end_time = Time.now
 			elapsed_time = end_time - start_time
 			
-			@logger.debug("time") {"#{message.inspect}: %0.3fs" % elapsed_time}
+			Relaxo.logger.debug("time") {"#{message.inspect}: %0.3fs" % elapsed_time}
 		end
 		
 		def apply(parent, changeset, **options)
