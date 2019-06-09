@@ -21,6 +21,7 @@
 require 'relaxo/database'
 
 require 'etc'
+require 'socket'
 
 module Relaxo
 	MASTER = 'master'.freeze
@@ -40,7 +41,11 @@ module Relaxo
 		
 		if config = database.config
 			unless config['user.name']
-				config['user.email'] = config['user.name'] = Etc.getlogin
+				login = Etc.getlogin
+				hostname = Socket.gethostname
+				
+				config['user.name'] = login
+				config['user.email'] = "#{login}@#{hostname}"
 			end
 		end
 		
