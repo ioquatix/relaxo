@@ -133,7 +133,7 @@ module Relaxo
 			end_time = Time.now
 			elapsed_time = end_time - start_time
 			
-			Relaxo.logger.debug("time") {"#{message.inspect}: %0.3fs" % elapsed_time}
+			Relaxo.logger.debug(self) {"#{message.inspect}: %0.3fs" % elapsed_time}
 		end
 		
 		def apply(parent, changeset, **options)
