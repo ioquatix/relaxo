@@ -18,7 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'covered/rspec'
+require "bundler/setup"
+require "covered/rspec"
 
 RSpec.configure do |config|
 	# Enable flags like --only-failures and --next-failure
