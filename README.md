@@ -1,4 +1,4 @@
-# Relaxo
+# ![Relaxo](logo.svg)
 
 Relaxo is a transactional database built on top of git. It's aim is to provide a robust interface for document storage and sorted indexes. If you prefer a higher level interface, you can try [relaxo-model](https://github.com/ioquatix/relaxo-model).
 
