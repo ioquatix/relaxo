@@ -2,9 +2,7 @@
 
 Relaxo is a transactional database built on top of git. It's aim is to provide a robust interface for document storage and sorted indexes. If you prefer a higher level interface, you can try [relaxo-model](https://github.com/ioquatix/relaxo-model).
 
-[![Build Status](https://secure.travis-ci.org/ioquatix/relaxo.svg)](http://travis-ci.org/ioquatix/relaxo)
-[![Code Climate](https://codeclimate.com/github/ioquatix/relaxo.svg)](https://codeclimate.com/github/ioquatix/relaxo)
-[![Coverage Status](https://coveralls.io/repos/ioquatix/relaxo/badge.svg)](https://coveralls.io/r/ioquatix/relaxo)
+[![Development Status](https://github.com/ioquatix/relaxo/workflows/Development/badge.svg)](https://github.com/ioquatix/relaxo/actions?workflow=Development)
 
 ## Installation
 
