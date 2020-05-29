@@ -28,11 +28,12 @@ module Relaxo
 	HEAD = 'HEAD'.freeze
 	
 	class Database
-		def initialize(path, branch, metadata = {})
+		def initialize(path, branch, metadata = {}, fsync: true)
 			@path = path
 			@metadata = metadata
 			
 			@repository = Rugged::Repository.new(path)
+			@repository.config['core.fsyncObjectFiles'] = fsync
 			
 			@branch = branch
 		end

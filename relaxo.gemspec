@@ -1,30 +1,32 @@
 
-require_relative 'lib/relaxo/version'
+require_relative "lib/relaxo/version"
 
 Gem::Specification.new do |spec|
-	spec.name          = "relaxo"
-	spec.version       = Relaxo::VERSION
-	spec.authors       = ["Samuel Williams"]
-	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
-	spec.description   = <<-EOF
-		Relaxo provides a set of tools and interfaces for interacting with CouchDB.
-		It aims to be as simple and efficient as possible while still improving the
-		usability of various CouchDB features.
-	EOF
-	spec.summary       = %q{Relaxo is a helper for loading and working with CouchDB.}
-	spec.homepage      = ""
-	spec.license       = "MIT"
-
-	spec.files         = `git ls-files`.split($/)
-	spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-	spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-	spec.require_paths = ["lib"]
+	spec.name = "relaxo"
+	spec.version = Relaxo::VERSION
 	
-	spec.add_dependency "rugged"
+	spec.summary = "Relaxo is versioned document database built on top of git."
+	spec.authors = ["Samuel Williams"]
+	spec.license = "MIT"
+	
+	spec.homepage = "https://github.com/ioquatix/relaxo"
+	
+	spec.metadata = {
+		"funding_uri" => "https://github.com/sponsors/ioquatix/",
+	}
+	
+	spec.files = Dir.glob('{lib}/**/*', File::FNM_DOTMATCH, base: __dir__)
+	
+	spec.required_ruby_version = ">= 2.5"
+	
 	spec.add_dependency "console"
+	spec.add_dependency "rugged"
 	
+	spec.add_development_dependency "bake"
+	spec.add_development_dependency "bake-bundler"
+	spec.add_development_dependency "bake-modernize"
+	spec.add_development_dependency "bundler"
 	spec.add_development_dependency "covered"
+	spec.add_development_dependency "msgpack"
 	spec.add_development_dependency "rspec", "~> 3.6"
-	spec.add_development_dependency "bundler", "~> 1.3"
-	spec.add_development_dependency "rake"
 end

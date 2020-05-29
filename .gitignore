@@ -7,6 +7,6 @@
 /spec/reports/
 /tmp/
 
-Gemfile.lock
+/gems.locked
 .rspec_status
 .covered.db
