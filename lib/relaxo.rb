@@ -41,11 +41,13 @@ module Relaxo
 		
 		if config = database.config
 			unless config['user.name']
-				login = Etc.getlogin
+				login = Etc.getpwuid
 				hostname = Socket.gethostname
 				
-				config['user.name'] = login
-				config['user.email'] = "#{login}@#{hostname}"
+				if login
+					config['user.name'] = login.name
+					config['user.email'] = "#{login.name}@#{hostname}"
+				end
 			end
 		end
 		
