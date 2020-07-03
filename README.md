@@ -8,7 +8,9 @@ Relaxo is a transactional database built on top of git. It's aim is to provide a
 
 Add this line to your application's Gemfile:
 
-	gem 'relaxo'
+```ruby
+gem 'relaxo'
+```
 
 And then execute:
 
@@ -22,27 +24,29 @@ Or install it yourself as:
 
 Connect to a local database and manipulate some documents.
 
-	require 'relaxo'
-	require 'msgpack'
-	
-	DB = Relaxo.connect("test")
-	
-	DB.commit(message: "Create test data") do |dataset|
-		object = dataset.append(MessagePack.dump({bob: 'dole'}))
-		dataset.write("doc1.msgpack", object)
-	end
-	
-	DB.commit(message: "Update test data") do |dataset|
-		doc = MessagePack.load dataset.read('doc1.msgpack').data
-		doc[:foo] = 'bar'
-		
-		object = dataset.append(MessagePack.dump(doc))
-		dataset.write("doc2.msgpack", object)
-	end
-	
-	doc = MessagePack.load DB.current['doc2.msgpack'].data
-	puts doc
-	# => {"bob"=>"dole", "foo"=>"bar"}
+```ruby
+require 'relaxo'
+require 'msgpack'
+
+DB = Relaxo.connect("test")
+
+DB.commit(message: "Create test data") do |dataset|
+	object = dataset.append(MessagePack.dump({bob: 'dole'}))
+	dataset.write("doc1.msgpack", object)
+end
+
+DB.commit(message: "Update test data") do |dataset|
+	doc = MessagePack.load dataset.read('doc1.msgpack').data
+	doc[:foo] = 'bar'
+
+	object = dataset.append(MessagePack.dump(doc))
+	dataset.write("doc2.msgpack", object)
+end
+
+doc = MessagePack.load DB.current['doc2.msgpack'].data
+puts doc
+# => {"bob"=>"dole", "foo"=>"bar"}
+```
 
 ### Document Storage
 
@@ -63,26 +67,30 @@ end
 
 #### Reading Files
 
-	path = "path/to/document"
-	
-	DB.current do |dataset|
-		object = dataset.read(path)
-		
-		puts "The object id: #{object.oid}"
-		puts "The object data size: #{object.size}"
-		puts "The object data: #{object.data.inspect}"
-	end
+```ruby
+path = "path/to/document"
+
+DB.current do |dataset|
+	object = dataset.read(path)
+
+	puts "The object id: #{object.oid}"
+	puts "The object data size: #{object.size}"
+	puts "The object data: #{object.data.inspect}"
+end
+```
 
 #### Writing Files
 
-	path = "path/to/document"
-	data = MessagePack.dump(document)
-	
-	DB.commit(message: "Adding document") do |changeset|
-		object = changeset.append(data)
-		changeset.write(path, object)
-	end
-	
+```ruby
+path = "path/to/document"
+data = MessagePack.dump(document)
+
+DB.commit(message: "Adding document") do |changeset|
+	object = changeset.append(data)
+	changeset.write(path, object)
+end
+```
+
 ### Datasets and Transactions
 
 `Dataset`s and `Changeset`s are important concepts. Relaxo doesn't allow arbitrary access to data, but instead exposes the git persistent model for both reading and writing. The implications of this are that when reading or writing, you always see a consistent snapshot of the data store.
