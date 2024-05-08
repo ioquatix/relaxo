@@ -1,47 +1,31 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2012-2019, by Samuel Williams.
+# Copyright, 2017, by Huba Nagy.
 
 require 'relaxo'
+require 'relaxo/test_records'
 
-RSpec.describe Relaxo::Database do
-	let(:database_path) {File.join(__dir__, 'test')}
-	
-	let(:database) {Relaxo.connect(database_path, test_key: "test_value")}
+describe Relaxo::Database do
+	include_context Relaxo::TemporaryDatabase
 	
 	let(:document_path) {'test/document.json'}
 	let(:sample_json) {'[1, 2, 3]'}
 	
-	before(:each) {FileUtils.rm_rf(database_path)}
-	
 	it "should be initially empty" do
-		expect(database).to be_empty
+		expect(database).to be(:empty?)
 	end
 	
 	it "prepares user details in config" do
-		expect(database.config).to include('user.name', 'user.email')
+		expect(database.config.to_hash).to have_keys(
+			'user.name', 'user.email'
+		)
 	end
 	
 	it "can clear database" do
-		expect do
-			database.clear!
-		end.to_not raise_error
+		database.clear!
+		expect(database).to be(:empty?)
 	end
 	
 	it "should not be empty with one document" do
@@ -50,7 +34,7 @@ RSpec.describe Relaxo::Database do
 			dataset.write(document_path, oid)
 		end
 		
-		expect(database).to_not be_empty
+		expect(database).not.to be(:empty?)
 	end
 	
 	it "should be able to clear the database" do
@@ -59,15 +43,15 @@ RSpec.describe Relaxo::Database do
 			dataset.write(document_path, oid)
 		end
 		
-		expect(database).to_not be_empty
+		expect(database).not.to be(:empty?)
 		
 		database.clear!
 		
-		expect(database).to be_empty
+		expect(database).to be(:empty?)
 	end
 	
 	it "should have metadata" do
-		expect(database[:test_key]).to be == "test_value"
+		expect(database.metadata).to be == {}
 	end
 	
 	it "should create a document" do
@@ -92,7 +76,7 @@ RSpec.describe Relaxo::Database do
 		end
 		
 		database.current do |dataset|
-			expect(dataset[document_path]).to be nil
+			expect(dataset[document_path]).to be_nil
 		end
 	end
 	

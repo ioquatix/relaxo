@@ -2,29 +2,29 @@
 
 Relaxo is a transactional database built on top of git. It's aim is to provide a robust interface for document storage and sorted indexes. If you prefer a higher level interface, you can try [relaxo-model](https://github.com/ioquatix/relaxo-model).
 
-[![Development Status](https://github.com/ioquatix/relaxo/workflows/Development/badge.svg)](https://github.com/ioquatix/relaxo/actions?workflow=Development)
+[![Development Status](https://github.com/ioquatix/relaxo/workflows/Test/badge.svg)](https://github.com/ioquatix/relaxo/actions?workflow=Test)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-```ruby
+``` ruby
 gem 'relaxo'
 ```
 
 And then execute:
 
-	$ bundle
+    $ bundle
 
 Or install it yourself as:
 
-	$ gem install relaxo
+    $ gem install relaxo
 
 ## Usage
 
 Connect to a local database and manipulate some documents.
 
-```ruby
+``` ruby
 require 'relaxo'
 require 'msgpack'
 
@@ -58,7 +58,7 @@ Relaxo has a transactional model for both reading and writing.
 
 By default, Relaxo sets up the repository author using the login name and hostname of the current session. You can explicitly change this by modifying `database.config`. Additionally, you can set this per-commit:
 
-```ruby
+``` ruby
 database.commit(message: "Testing Enumeration", author: {user: "Alice", email: "alice@localhost"}) do |dataset|
 	object = dataset.append("Hello World!")
 	dataset.write("hello.txt", object)
@@ -67,7 +67,7 @@ end
 
 #### Reading Files
 
-```ruby
+``` ruby
 path = "path/to/document"
 
 DB.current do |dataset|
@@ -81,7 +81,7 @@ end
 
 #### Writing Files
 
-```ruby
+``` ruby
 path = "path/to/document"
 data = MessagePack.dump(document)
 
@@ -105,17 +105,17 @@ Because it maintains a full history of all changes, the repository would continu
 
 Relaxo can do anywhere from 1000-10,000 inserts per second depending on how you structure the workload.
 
-	Relaxo Performance
-	Warming up --------------------------------------
-	              single   129.000  i/100ms
-	Calculating -------------------------------------
-	              single      6.224k (±14.7%) i/s -    114.036k in  20.000025s
-	  single transaction should be fast
-	Warming up --------------------------------------
-	            multiple   152.000  i/100ms
-	Calculating -------------------------------------
-	            multiple      1.452k (±15.2%) i/s -     28.120k in  20.101831s
-	  multiple transactions should be fast
+    Relaxo Performance
+    Warming up --------------------------------------
+                  single   129.000  i/100ms
+    Calculating -------------------------------------
+                  single      6.224k (±14.7%) i/s -    114.036k in  20.000025s
+      single transaction should be fast
+    Warming up --------------------------------------
+                multiple   152.000  i/100ms
+    Calculating -------------------------------------
+                multiple      1.452k (±15.2%) i/s -     28.120k in  20.101831s
+      multiple transactions should be fast
 
 Reading data is lighting fast as it's loaded directly from disk and cached.
 
@@ -127,8 +127,8 @@ As Relaxo is unapologetically based on git, you can use git directly with a non-
 
 Relaxo is based on `libgit2` and asserts that it is a transactional database. We base this assertion on:
 
-- All writes into the object store using `libgit2` are atomic and synchronized to disk.
-- All updates to refs are atomic and synchronized to disk.
+  - All writes into the object store using `libgit2` are atomic and synchronized to disk.
+  - All updates to refs are atomic and synchronized to disk.
 
 Provided these two invariants are maintained, the operation of Relaxo will be safe, even if there are unexpected interruptions to the program.
 
@@ -136,32 +136,18 @@ The durability guarantees of Relaxo depend on [`libgit2` calling `fsync`](https:
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+We welcome contributions to this project.
 
-## License
+1.  Fork it.
+2.  Create your feature branch (`git checkout -b my-new-feature`).
+3.  Commit your changes (`git commit -am 'Add some feature'`).
+4.  Push to the branch (`git push origin my-new-feature`).
+5.  Create new Pull Request.
 
-Released under the MIT license.
+### Developer Certificate of Origin
 
-Copyright, 2015, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
+This project uses the [Developer Certificate of Origin](https://developercertificate.org/). All contributors to this project must agree to this document to have their contributions accepted.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+### Contributor Covenant
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+This project is governed by the [Contributor Covenant](https://www.contributor-covenant.org/). All contributors and participants agree to abide by its terms.
