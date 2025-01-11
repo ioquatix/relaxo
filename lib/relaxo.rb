@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2012-2024, by Samuel Williams.
+# Copyright, 2012-2025, by Samuel Williams.
 
-require 'relaxo/database'
+require "relaxo/database"
 
-require 'etc'
-require 'socket'
+require "etc"
+require "socket"
 
 module Relaxo
-	DEFAULT_BRANCH = 'main'.freeze
+	DEFAULT_BRANCH = "main".freeze
 	
 	def self.connect(path, branch: nil, sync: nil, create: true, **metadata)
 		if !File.exist?(path) || create
@@ -19,8 +19,8 @@ module Relaxo
 				repository.head = "refs/heads/#{branch}"
 			end
 			
-			if sync || ENV['RELAXO_SYNC']
-				repository.config['core.fsyncObjectFiles'] = true
+			if sync || ENV["RELAXO_SYNC"]
+				repository.config["core.fsyncObjectFiles"] = true
 			end
 		else
 			repository = Rugged::Repository.new(path)
@@ -32,13 +32,13 @@ module Relaxo
 		database = Database.new(path, branch, metadata)
 		
 		if config = database.config
-			unless config['user.name']
+			unless config["user.name"]
 				login = Etc.getpwuid
 				hostname = Socket.gethostname
 				
 				if login
-					config['user.name'] = login.name
-					config['user.email'] = "#{login.name}@#{hostname}"
+					config["user.name"] = login.name
+					config["user.email"] = "#{login.name}@#{hostname}"
 				end
 			end
 		end
@@ -52,7 +52,7 @@ module Relaxo
 	def self.default_branch(repository)
 		if head = repository.references["HEAD"]
 			if target_id = head.target_id
-				return target_id.sub(/^refs\/heads\//, '')
+				return target_id.sub(/^refs\/heads\//, "")
 			end
 		end
 		

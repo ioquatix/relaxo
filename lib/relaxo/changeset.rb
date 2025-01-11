@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2012-2019, by Samuel Williams.
+# Copyright, 2012-2025, by Samuel Williams.
 
-require_relative 'dataset'
+require_relative "dataset"
 
 module Relaxo
 	class Changeset < Dataset
@@ -38,7 +38,7 @@ module Relaxo
 		end
 		
 		def write(path, object, mode = 0100644)
-			root, _, name = path.rpartition('/')
+			root, _, name = path.rpartition("/")
 			
 			entry = @changes[path] = {
 				action: :upsert,
@@ -58,7 +58,7 @@ module Relaxo
 		alias []= write
 		
 		def delete(path)
-			root, _, name = path.rpartition('/')
+			root, _, name = path.rpartition("/")
 			
 			entry = @changes[path] = {
 				action: :remove,

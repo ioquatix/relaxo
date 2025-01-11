@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017, by Samuel Williams.
+# Copyright, 2017-2025, by Samuel Williams.
 
-require 'rugged'
+require "rugged"
 
 module Relaxo
 	class Directory
@@ -50,7 +50,7 @@ module Relaxo
 		end
 		
 		def insert(entry)
-			_, _, name = entry[:name].rpartition('/')
+			_, _, name = entry[:name].rpartition("/")
 			
 			@changes[name] = entry
 			
@@ -59,7 +59,7 @@ module Relaxo
 		end
 		
 		def delete(entry)
-			_, _, name = entry[:name].rpartition('/')
+			_, _, name = entry[:name].rpartition("/")
 			
 			@changes[name] = nil
 			

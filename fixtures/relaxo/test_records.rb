@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017-2019, by Samuel Williams.
+# Copyright, 2017-2025, by Samuel Williams.
 
-require 'relaxo'
-require 'tmpdir'
+require "relaxo"
+require "tmpdir"
 
 module Relaxo
 	TemporaryDatabase = Sus::Shared("temporary database") do

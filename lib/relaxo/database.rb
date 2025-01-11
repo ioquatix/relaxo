@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2012-2024, by Samuel Williams.
+# Copyright, 2012-2025, by Samuel Williams.
 # Copyright, 2017, by Huba Nagy.
 
-require 'rugged'
+require "rugged"
 
-require_relative 'logger'
-require_relative 'dataset'
-require_relative 'changeset'
+require_relative "logger"
+require_relative "dataset"
+require_relative "changeset"
 
 module Relaxo
-	HEAD = 'HEAD'.freeze
+	HEAD = "HEAD".freeze
 	
 	class Database
 		def initialize(path, branch, metadata = {})

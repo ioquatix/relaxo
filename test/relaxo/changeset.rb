@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017-2019, by Samuel Williams.
+# Copyright, 2017-2025, by Samuel Williams.
 
-require 'relaxo/test_records'
+require "relaxo/test_records"
 
 describe Relaxo::Changeset do
 	include_context Relaxo::TestRecords
@@ -40,7 +40,7 @@ describe Relaxo::Changeset do
 	end
 	
 	let(:author) do
-		{name: 'Testing McTestface', email: 'testing@testing.com'}
+		{name: "Testing McTestface", email: "testing@testing.com"}
 	end
 	
 	it "can use specified author" do
@@ -51,8 +51,8 @@ describe Relaxo::Changeset do
 		
 		commit = database.head.target
 		expect(commit.author).to have_keys(
-			name: be == 'Testing McTestface',
-			email: be == 'testing@testing.com',
+			name: be == "Testing McTestface",
+			email: be == "testing@testing.com",
 		)
 	end
 end

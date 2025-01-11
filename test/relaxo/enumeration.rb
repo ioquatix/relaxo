@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017-2019, by Samuel Williams.
+# Copyright, 2017-2025, by Samuel Williams.
 
-require 'relaxo/test_records'
+require "relaxo/test_records"
 
 describe Relaxo::Dataset do
 	include_context Relaxo::TestRecords

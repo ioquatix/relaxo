@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2012-2019, by Samuel Williams.
+# Copyright, 2012-2025, by Samuel Williams.
 
-require 'rugged'
+require "rugged"
 
-require_relative 'directory'
+require_relative "directory"
 
 module Relaxo
 	class Dataset
@@ -40,7 +40,7 @@ module Relaxo
 			return false
 		end
 		
-		def each(path = '', &block)
+		def each(path = "", &block)
 			return to_enum(:each, path) unless block_given?
 			
 			directory = fetch_directory(path)
