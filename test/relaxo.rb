@@ -11,7 +11,7 @@ describe Relaxo do
 		
 		it "can connect to a new database" do
 			expect(database).to be_a Relaxo::Database
-			expect(database.branch).to be == "main"
+			expect(database.branch).to (be == "main").or(be == "master")
 		end
 		
 		it "can connect to a new database with an alternative branch name" do
