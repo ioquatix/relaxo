@@ -9,18 +9,25 @@ require 'etc'
 require 'socket'
 
 module Relaxo
-	MASTER = 'master'.freeze
+	DEFAULT_BRANCH = 'main'.freeze
 	
 	def self.connect(path, branch: nil, sync: nil, create: true, **metadata)
 		if !File.exist?(path) || create
 			repository = Rugged::Repository.init_at(path, true)
 			
+			if branch
+				repository.head = "refs/heads/#{branch}"
+			end
+			
 			if sync || ENV['RELAXO_SYNC']
 				repository.config['core.fsyncObjectFiles'] = true
 			end
+		else
+			repository = Rugged::Repository.new(path)
 		end
 		
-		branch ||= MASTER
+		# Automatically detect the current branch if `branch` is not provided:
+		branch ||= self.default_branch(repository)
 		
 		database = Database.new(path, branch, metadata)
 		
@@ -37,5 +44,18 @@ module Relaxo
 		end
 		
 		return database
+	end
+	
+	private
+	
+	# Detect the default branch of the repository, taking into account unborn branches.
+	def self.default_branch(repository)
+		if head = repository.references["HEAD"]
+			if target_id = head.target_id
+				return target_id.sub(/^refs\/heads\//, '')
+			end
+		end
+		
+		return DEFAULT_BRANCH
 	end
 end

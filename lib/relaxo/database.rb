@@ -32,6 +32,9 @@ module Relaxo
 		attr :metadata
 		attr :repository
 		
+		# @attribute branch [String] The branch that this database is currently working with.
+		attr :branch
+		
 		# Completely clear out the database.
 		def clear!
 			if head = @repository.branches[@branch]
