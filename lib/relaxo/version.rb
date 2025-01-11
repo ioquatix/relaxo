@@ -4,5 +4,5 @@
 # Copyright, 2012-2025, by Samuel Williams.
 
 module Relaxo
-	VERSION = "1.7.0"
+	VERSION = "1.8.0"
 end
